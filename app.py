@@ -1,5 +1,5 @@
 from flask import Flask, render_template, jsonify, request
-# jsonify, request 임포트
+from pymongo import MongoClient
 
 app = Flask(__name__)
 
@@ -7,10 +7,6 @@ app = Flask(__name__)
 @app.route('/')
 def home():
     return render_template('index.html')
-
-@app.route('/card')
-def card():
-    return render_template('card.html')
 
 @app.route('/manage')
 def manage():
@@ -43,12 +39,3 @@ def member():
 
 if __name__ == '__main__':
     app.run('0.0.0.0', port=5000, debug=True)
-
-
-
-# @app.route('/ajax', methods=['POST'])
-# def ajax():
-#     data = request.get_json()
-#     print(data)
-#
-#     return jsonify(result = "success", result2= data)
