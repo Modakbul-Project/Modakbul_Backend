@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<title>Kakao 지도 시작하기</title>
+</head>
+<body>
+    <form method="post" action="/kakao2db">
+        <div>
+            <input type="text" name="address" id="search_name"/>
+            <input type="button" value="search" onclick="add_search()"/>
+        </div>
+        <div>
+            <input type="text" name="lat" id="search_lat"> <--위도 좌표값을 불러올 부분
+            <input type="text" name="lng" id="search_lng"> <--경도 좌표값을 불러올 부분
+        </div>
+        <div>
+            <input type="submit" value="전송">
+        </div>
+    </form>
+    <br>
+    <div id="map" style="width:100%;height:400px;"></div>
+	<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d8a73cfa5a833cba814b8937d2b54a0e&libraries=services"></script>
+	<script>
+		var container = document.getElementById('map');
+		var options = {
+			center: new kakao.maps.LatLng(37.5826052,127.0101245),
+			level: 3
+		};
+        //지도를 생성합니다.
+		var map = new kakao.maps.Map(container, options);
+
+        //주소-좌표 변환 객체를 생성합니다.
+		var geocoder = new kakao.maps.services.Geocoder();
+
+		//주소로 좌표를 검색합니다.
+		function add_search(){
+		    var add_search = document.getElementById('search_name').value;
+		    geocoder.addressSearch(add_search, function(result, status) {
+                //정삭적으로 검색이 완료됐으면
+                if(status == kakao.maps.services.Status.OK) {
+                    var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+
+                    //결과값으로 받은 위치를 마커로 표시합니다.
+                    var marker = new kakao.maps.Marker({
+                        map:map,
+                        position:coords
+                    });
+                    document.getElementById('search_lat').value = result[0].x
+                    document.getElementById('search_lng').value = result[0].y
+
+                    map.setCenter(coords);
+                }
+		    });
+		}
+	</script>
+</body>
+</html>
