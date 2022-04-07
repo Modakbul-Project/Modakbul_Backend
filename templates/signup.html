@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ko">
+<head>
+    <!--  meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
+    <title>회원가입</title>
+</head>
+<body>
+    <div class="container">
+        <h5 class="my-3 border-bottom pb-2">회원가입</h5>
+        <form method="post" action="/signup">
+            <div class="mb-3">
+                <label for="username">사용자 이름</label>
+                <input type="text" class="form-control" name="username" id="username" placeholder="회원명" required>
+            </div>
+            <div class="mb-3">
+                <label for="userid">사용자 ID</label>
+                <input type="text" class="form-control" name="userid" id="userid"  placeholder="아이디" required >
+            </div>
+            <div class="mb-3">
+                <label for="password1">비밀번호</label>
+                <input type="password" class="form-control" name="password1" id="password1"  placeholder="비밀번호" required>
+            </div>
+            <div class="mb-3">
+                <label for="password2">비밀번호 확인</label>
+                <input type="password" class="form-control" name="password2" id="password2"  placeholder="비밀번호 확인" required>
+            </div>
+            <div class="mb-3">
+                <label for="gender">성별</label>
+                <input type="radio" class="form-check-input" name="gender" id=="gender" value="m">남성
+                <input type="radio" class="form-check-input" name="gender" id="gender" value="w">여성
+            </div>
+            <div class="mb-3">
+                <label for="birth">생년월일</label>
+                <input type="date" class="form-control" name="birth" id="birth" pattern="\d{4}-\d{2}-\d{2}"  required>
+            </div>
+            <div class="mb-3">
+                <label for="email">이메일</label>
+                <input type="text" class="form-control" name="email" id="email" placeholder="예) abc@gmail.com" required>
+            </div>
+            <div class="mb-3">
+                <label for="phone">전화번호</label>
+                <input type='tel' class="form-control" name='phone' id='phone' pattern="[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}" maxlength="13" placeholder="예) 010-1234-5678"  required/>
+            </div>
+            <button type="submit" class="btn btn-primary" id="submitBtn">생성하기</button>
+        </form>
+    </div>
+</body>
+</html>
