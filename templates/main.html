@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='jquery.mousewheel.js') }}"></script>
+    <meta charset="UTF-8">
+    <title>모닥불</title>
+</head>
+<style>
+    html, body{
+        margin: 0;
+        border: 0;
+        width : 100%;
+        height: 100%;
+    }
+
+    .container{
+    }
+
+    .main{
+        margin: 0;
+        border: 0;
+        width : 100%;
+        height: 100%;
+    }
+
+    header{
+        top:0px;
+        padding: 1rem 2rem;
+        z-index:10;
+        display:flex;
+        position: relative;
+        justify-content: space-between;
+        align-items: center;
+        background-color: white;
+        border-bottom: 1px solid lightgray;
+    }
+    .navbar{
+        display: flex;
+        position: relative;
+    }
+    .search input{
+        height:30px;
+        margin-right:1rem;
+    }
+
+    .contents{
+        overflow: hidden;
+    }
+
+    .category {
+        padding: 1rem;
+        display:flex;
+        position: relative;
+        align-items: center;
+        background-color: lightblue;
+        z-index: 5;
+    }
+
+
+    .category ul {
+        list-style: none;
+        padding-left: 0;
+        display: flex;
+    }
+
+    .category form select{
+        height:30px;
+    }
+
+    .tags{
+        background-color: white;
+        padding:0.1rem;
+        font-size: 0.5rem;
+    }
+
+    .cardContainer{
+        position: relative;
+        display:flex;
+        align-items: center;
+        border: 1px solid gray;
+        background-color: lightblue;
+        overflow:hidden;
+        padding: 1rem;
+        padding-bottom:1.5rem;
+        z-index: 5;
+    }
+    .cards{
+        width:100%;
+        position: relative;
+        display:flex;
+        align-items: center;
+        overflow: scroll;
+        white-space: nowrap;
+        ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
+
+    }
+
+    .cards::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera*/
+    }
+
+    .cards ul{
+        padding: 0;
+        margin: 0;
+    }
+
+    .card{
+        display: inline-block;
+        list-style: none;
+        padding-left: 0;
+        margin-right:2px;
+        border: 1px solid gray;
+        width:150px;
+        height: 200px;
+        background-color:white;
+    }
+
+    .map{
+        width:100%;
+        position:absolute;
+        bottom: 0;
+        overflow: hidden;
+        z-index: 0;
+    }
+
+    .scrollBt-right{
+        position:absolute;
+        right:0;
+        z-index:4;
+    }
+
+    .scrollBt-left{
+        position:absolute;
+        left:0;
+        z-index:4;
+    }
+
+    .hideToggle{
+        position:absolute;
+        width:100%;
+        text-align:center;
+        bottom:0;
+    }
+
+    .wrap {position: absolute;left: 0;bottom: 40px;width: 288px;height: 132px;margin-left: -144px;text-align: left;overflow: hidden;font-size: 12px;font-family: 'Malgun Gothic', dotum, '돋움', sans-serif;line-height: 1.5;}
+    .wrap * {padding: 0;margin: 0;}
+    .wrap .info {width: 286px;height: 120px;border-radius: 5px;border-bottom: 2px solid #ccc;border-right: 1px solid #ccc;overflow: hidden;background: #fff;}
+    .wrap .info:nth-child(1) {border: 0;box-shadow: 0px 1px 2px #888;}
+    .info .title {padding: 5px 0 0 10px;height: 30px;background: #eee;border-bottom: 1px solid #ddd;font-size: 18px;font-weight: bold;}
+    .info .close {position: absolute;top: 10px;right: 10px;color: #888;width: 17px;height: 17px;background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/overlay_close.png');}
+    .info .close:hover {cursor: pointer;}
+    .info .body {position: relative;overflow: hidden;}
+    .info .desc {position: relative;margin: 13px 0 0 90px;height: 75px;}
+    .desc .ellipsis {overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
+    .desc .jibun {font-size: 11px;color: #888;margin-top: -2px;}
+    .info .img {position: absolute;top: 6px;left: 5px;width: 73px;height: 71px;border: 1px solid #ddd;color: #888;overflow: hidden;}
+    .info:after {content: '';position: absolute;margin-left: -12px;left: 50%;bottom: 0;width: 22px;height: 12px;background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/vertex_white.png')}
+    .info .link {color: #5085BB;}
+
+</style>
+<body>
+   <div class="main container">
+       <header class="container">
+           <a class="logo" href="/"> 모닥불 </a>
+           <nav class="navbar">
+           <div class="search"><form action="#" method="post">
+               <input type="text" name="keyword" placeholder="검색">
+               <input type="submit" value="src">
+           </form></div>
+           <button class="mypage"><a href="/mypage">mypage</a></button>
+           </nav>
+        </header>
+       <div class="contents conatainer">
+           <div class="category"> <form action="#" method="post">
+               <!-- 디자인 하려면 button->li로 넣어야 할듯 -->
+                <select name="location" id="loc">
+                    <optgroup label="도시명"></optgroup>
+                    <option value="지역명">지역명</option>
+                </select>
+                <select name="category" id="category">
+                    <optgroup label="대분류"></optgroup>
+                    <option value="주제명">주제명</option>
+                </select>
+                <select name="headcount" id="head">
+                    <option value="">여기는 직접입력으로(생긴건 드롭다운처럼)</option>
+                </select>
+           </form>
+           <div class="tags"> <ul><li>태그 1</li><li>태그 2</li></ul> </div>
+             </div>
+
+           <script>
+               //마우스 가로 스크롤 이벤트
+            $(function() {
+
+                $(".cards").mousewheel(function(event, delta) {
+
+                    this.scrollLeft -= (delta * 30);
+
+                    event.preventDefault();
+
+                });
+
+            });
+
+           </script>
+           <div class="cardContainer">
+
+           <div class="cards">
+               <ul>
+               <li class="card">
+                   카드정보
+               </li>
+                <li class="card">
+                   카드정보
+               </li>
+                <li class="card">
+                   카드정보
+               </li>
+                <li class="card">
+                   카드정보
+               </li>
+               <li class="card">
+                   카드정보
+               </li>
+                <li class="card">
+                   카드정보
+               </li>
+                <li class="card">
+                   카드정보
+               </li>
+                <li class="card">
+                   카드정보
+               </li>
+           </ul>
+           </div>
+               <div class="scrollBt-left">왼쪽버튼</div>
+               <div class="scrollBt-right">오른쪽버튼</div>
+               <div class="hideToggle"><a> 숨기기 </a></div>
+           <script>
+           //스크롤 버튼
+                $(".scrollBt-right").click(function(){
+                $(".cards").animate({scrollLeft:"+=500"},800);
+            });
+            $(".scrollBt-left").click(function(){
+                $(".cards").animate({scrollLeft:"-=500"},800);
+            });
+
+            //숨기기 토글
+            //숨기기 클릭 - 카드 컨테이너 위쪽으로 밀려 올라감 (밑면이 top0이 되게)
+            $(".hideToggle a").click(function(){
+                $(".cardContainer").animate({height:"0"},500);
+
+            });
+           </script>
+        </div>
+        <div id="map" style="width:100%;height:350px;"></div>
+
+        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d8a73cfa5a833cba814b8937d2b54a0e"></script>
+        <script>
+            var mapContainer = document.getElementById('map'),
+                mapOption = {
+                    center: new kakao.maps.LatLng(37.5826052,127.0101245), // 지도의 중심좌표
+                    level: 3 // 지도의 확대 레벨
+                };
+
+            var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+
+            // 커스텀 오버레이에 표시할 내용입니다
+            // HTML 문자열 또는 Dom Element 입니다
+            var positions = []
+              {% for i in data %}
+                positions.push(
+                {
+                    title: '<div class="wrap">' +
+                    '    <div class="info">' +
+                    '        <div class="title">' +
+                    '            {{i.title}}' +
+                    '        </div>' +
+                    '        <div class="body">' +
+                    '            <div class="img">' +
+                    '                <img src="../static/study.jpg" width="73" height="70">' +
+                    '           </div>' +
+                    '            <div class="desc">' +
+                    '                <div class="ellipsis">{{i.topic}}</div>' +
+                    '                <div class="jibun ellipsis">{{i.recruit_num}}명 모집합니다.</div>' +
+                    '                <div class="jibun ellipsis">{{i.contents}}</div>' +
+                    '                <div class="jibun ellipsis">{{i.address}}</div>' +
+                    '            </div>' +
+                    '        </div>' +
+                    '    </div>' +
+                    '</div>',
+                    latlng: new kakao.maps.LatLng({{i.lat}}, {{i.lng}})
+                });
+              {% endfor %}
+
+            //displayMarker 함수를 호출해 positions 배열에 저장 된 마커들을 지도에 표시한다.
+            for(let i=0; i < positions.length; i++){
+                var data = positions[i];
+                displayMarker(data);
+            }
+
+            // 지도에 마커를 표시하는 함수입니다
+            function displayMarker(data) {
+                //마커 위치 설정
+                var marker = new kakao.maps.Marker({
+                    map: map,
+                    position: data.latlng
+                });
+                //오버레이 위치 설정
+                var overlay = new kakao.maps.CustomOverlay({
+                    yAnchor: 3,
+                    position: marker.getPosition()
+                });
+
+                //오버레이 내용 설정
+                var content = document.createElement('div');
+                content.innerHTML =  data.title;
+
+                overlay.setContent(content);
+
+                //마커를 클릭하면 오버레이가 나타나고 마커가 지도의 중심으로 이동한다.
+                kakao.maps.event.addListener(marker, 'click', function() {
+                    var latlng = marker.getPosition();
+                    map.setCenter(latlng);
+                    overlay.setMap(map);
+                });
+
+                //마커를 우클릭하면 오버레이가 사라진다.
+                kakao.maps.event.addListener(marker, 'rightclick', function() {
+                    overlay.setMap(null);
+                });
+            }
+        </script>
+       <div class="footer conatainer">
+           <!--팀원이나 간단한 정보들적기, 높이 낮아지면 사라짐-->
+        </div>
+       </div>
+   </div>
+</body>
+</html>
