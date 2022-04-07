@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.5.1.js"
+            integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!--ajax 임포트-->
+
+    <link rel="stylesheet" href="static/bgColor.css">
+
+    <title>title</title>
+</head>
+<style>
+    html, body{
+        margin: 0;
+        border: 0;
+        width : 100%;
+        height: 100%;
+    }
+
+    .container{
+    }
+
+    .main{
+        margin: 0;
+        border: 0;
+        width : 100%;
+        height: 100%;
+    }
+
+    header{
+        top:0px;
+        padding: 1rem 2rem;
+        z-index:10;
+        display:flex;
+        position: relative;
+        justify-content: space-between;
+        align-items: center;
+        background-color: white;
+        border-bottom: 1px solid lightgray;
+    }
+    .navbar{
+        display: flex;
+        position: relative;
+    }
+    .search input{
+        height:30px;
+        margin-right:1rem;
+    }
+
+    .contents{
+        overflow: hidden;
+    }
+
+    .category {
+        padding: 1rem;
+        display:flex;
+        position: relative;
+        align-items: center;
+        background-color: lightblue;
+        z-index: 5;
+    }
+
+
+    .category ul {
+        list-style: none;
+        padding-left: 0;
+        display: flex;
+    }
+
+    .category form select{
+        height:30px;
+    }
+
+    .tags{
+        background-color: white;
+        padding:0.1rem;
+        font-size: 0.5rem;
+    }
+
+    .cardContainer{
+        position: relative;
+        display:flex;
+        align-items: center;
+        border: 1px solid gray;
+        background-color: lightblue;
+        overflow:hidden;
+        padding: 1rem;
+        padding-bottom:1.5rem;
+        z-index: 5;
+    }
+    .cards{
+        width:100%;
+        position: relative;
+        display:flex;
+        align-items: center;
+        overflow: scroll;
+        white-space: nowrap;
+        ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
+
+    }
+
+    .cards::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera*/
+    }
+
+    .cards ul{
+        padding: 0;
+        margin: 0;
+    }
+
+    .card{
+        display: inline-block;
+        list-style: none;
+        padding-left: 0;
+        margin-right:2px;
+        border: 1px solid gray;
+        width:150px;
+        height: 200px;
+        background-color:white;
+    }
+
+    .map{
+        width:100%;
+        position:absolute;
+        bottom: 0;
+        overflow: hidden;
+        z-index: 0;
+    }
+
+    .scrollBt-right{
+        position:absolute;
+        right:0;
+        z-index:4;
+    }
+
+    .scrollBt-left{
+        position:absolute;
+        left:0;
+        z-index:4;
+    }
+
+    .hideToggle{
+        position:absolute;
+        width:100%;
+        text-align:center;
+        bottom:0;
+    }
+
+</style>
+<body>
+<h1>서버-클라이언트 통신 테스트</h1>
+<h3>예시 메인 페이지
+</h3>
+<h3>
+    <a href="/manage">관리 페이지</a> /
+    <a href="/meeting">모임 페이지</a> /
+    <a href="/myPage">마이 페이지</a>
+</h3>
+
+<hr>
+
+<h4>스터디 카드</h4>
+    카드 정보 => <input type="text" id="card_id1" placeholder="card_id">
+    멤버 정보 => <input type="text" id="member_id1" placeholder="member_id">
+    <input type="button" id="join" value="참여하기">
+
+   <div class="main container">
+       <header class="container">
+           <a class="logo" href="/"> 모닥불 </a>
+           <nav class="navbar">
+           <div class="search"><form action="#" method="post">
+               <input type="text" name="keyword" placeholder="검색">
+               <input type="submit" value="src">
+           </form></div>
+           <button class="mypage"><a href="/mypage">mypage</a></button>
+           </nav>
+        </header>
+       <div class="contents conatainer">
+           <div class="category"> <form action="#" method="post">
+               <!-- 디자인 하려면 button->li로 넣어야 할듯 -->
+                <select name="location" id="loc">
+                   <optgroup label="도시명">
+                       <option value="지역명">지역명</option></optgroup>
+                </select>
+                <select name="category" id="category">
+                   <optgroup label="대분류">
+                       <option value="주제명">주제명</option></optgroup>
+                </select>
+                <select name="headcount" id="head">
+                    <option value="">여기는 직접입력으로(생긴건 드롭다운처럼)</option>
+                </select>
+           </form>
+           <div class="tags"> <ul><li>태그 1</li><li>태그 2</li></ul> </div>
+             </div>
+
+           <script>
+               //마우스 가로 스크롤 이벤트
+            $(function() {
+
+                $(".cards").mousewheel(function(event, delta) {
+
+                    this.scrollLeft -= (delta * 30);
+
+                    event.preventDefault();
+
+                });
+
+            });
+
+           </script>
+           <div class="cardContainer">
+
+           <div class="cards">
+               <ul>
+               <li class="card">
+                   카드정보
+               </li>
+                <li class="card">
+                   카드정보
+               </li>
+                <li class="card">
+                   카드정보
+               </li>
+                <li class="card">
+                   카드정보
+               </li>
+               <li class="card">
+                   카드정보
+               </li>
+                <li class="card">
+                   카드정보
+               </li>
+                <li class="card">
+                   카드정보
+               </li>
+                <li class="card">
+                   카드정보
+               </li>
+           </ul>
+           </div>
+               <div class="scrollBt-left">왼쪽버튼</div>
+               <div class="scrollBt-right">오른쪽버튼</div>
+               <div class="hideToggle"><a> 숨기기 </a></div>
+           <script>
+           //스크롤 버튼
+                $(".scrollBt-right").click(function(){
+                $(".cards").animate({scrollLeft:"+=500"},800);
+            });
+            $(".scrollBt-left").click(function(){
+                $(".cards").animate({scrollLeft:"-=500"},800);
+            });
+
+            //숨기기 토글
+            //숨기기 클릭 - 카드 컨테이너 위쪽으로 밀려 올라감 (밑면이 top0이 되게)
+            $(".hideToggle a").click(function(){
+                $(".cardContainer").animate({height:"0"},500);
+
+            });
+           </script>
+        </div>
+           <div class="map">
+               <img src="{{ url_for('static', filename='map.png') }}"/>
+        </div>
+       <div class="footer conatainer">
+           <!--팀원이나 간단한 정보들적기, 높이 낮아지면 사라짐-->
+        </div>
+       </div>
+   </div>
+
+
+    <script> <!--모임 참여 요청-->
+        $('#join').click(function(){
+            let card_id = $("#card_id1").val();
+            let member_id = $("#member_id1").val();
+            let join = true;
+            let postdata = {
+                "card_id":card_id,
+                "member_id":member_id,
+                "member_join":join
+            }
+            $.ajax({
+                type: 'POST',
+                url: '{{url_for("join")}}',
+                data: JSON.stringify(postdata),
+                dataType : 'JSON',
+                contentType: "application/json",
+                success: function(data){
+                    alert('성공! 데이터 값:' + data.result2["card_id"] + " " + data.result2["member_id"]
+                        + " " + data.result2["member_join"])
+                },
+                error: function(request, status, error){
+                    alert('ajax 통신 실패')
+                    alert(error);
+                }
+            })
+        })
+    </script>
+
+</body>
+
+</html>
+
+
