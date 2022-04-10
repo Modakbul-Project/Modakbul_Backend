@@ -1,13 +1,20 @@
-from flask import Flask, render_template, redirect, request, url_for
+from flask import Flask, render_template, redirect, request, url_for, json
 from pymongo import MongoClient
+from bson.json_util import ObjectId
+
+
+# json 시리얼 오류 처리용 인코더
+class MyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, ObjectId):
+            return str(obj)
+        return super(MyEncoder, self).default(obj)
+
 
 # db 연동
 conn = MongoClient('127.0.0.1')
-
 # db 생성
 db = conn.Test
-
-
 app = Flask(__name__)
 
 
