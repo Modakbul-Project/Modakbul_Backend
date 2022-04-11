@@ -147,7 +147,7 @@ def kakao2db():
         }
         # document 삽입
         collect.insert_one(doc)
-        return redirect(url_for('kakao2db'))
+        return redirect(url_for('main'))
     else:
         return render_template('kakao2db.html')
 
