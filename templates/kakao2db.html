@@ -3,29 +3,53 @@
 <head>
 	<meta charset="utf-8"/>
 	<title>Kakao 지도 시작하기</title>
+        <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}">
 </head>
 <body>
-    <form method="post" action="/kakao2db">
-        <div>
-            <input type="text" name="address" id="search_name"/>
-            <input type="button" value="search" onclick="add_search()"/>
-        </div>
-        <div>
-            제   목: <input type="text" name="title"> <br>
-            주   제: <input type="text" name="topic"> <br>
-            모집인원: <input type="number" name="recruit_num"> <br>
-            내   용: <input type="text" name="contents"> <br>
-        </div>
-        <div>
-            <input type="hidden" name="lat" id="search_lat"> // 입력된 주소에 해당하는 위도
-            <input type="hidden" name="lng" id="search_lng"> // 입력된 주소에 해당하는 경도
-        </div>
-        <div>
-            <input type="submit" value="전송">
-        </div>
-    </form>
-    <br>
-    <div id="map" style="width:100%;height:400px;"></div>
+    <div class="container">
+        <h5 class="my-3 border-bottom pb-2">모임 생성하기</h5>
+        <form method="post" action="/kakao2db">
+             <div class="form-inline form-group" >
+                <label for="search_name">주소</label>
+                 <div class="col-sm-5">
+                <input type="text" class="form-control" name="address" id="search_name"/>
+                 </div>
+                 <input type="button" class="btn btn-success" value="search" onclick="add_search()"/>
+             </div>
+            <div class="mb-3">
+                <label for="title">제목</label>
+                <div class="col-sm-5">
+                <input type="text" class="form-control" name="title" id="title">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="topic">주제</label>
+                <div class="col-sm-5">
+                <input type="text" class="form-control" name="topic" id="topic">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="recruit_num">모집인원</label>
+                <div class="col-sm-5">
+                <input type="number" class="form-control" name="recruit_num" id="recruit_num">
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="contents">내용</label>
+                <div class="col-sm-5">
+                <input type="text" class="form-control" name="contents" id="contents">
+                </div>
+            </div>
+            <div>
+                <input type="hidden" name="lat" id="search_lat"> <!-- 입력된 주소에 해당하는 위도 -->
+                <input type="hidden" name="lng" id="search_lng"> <!-- 입력된 주소에 해당하는 경도 -->
+            </div>
+                <button type="submit" class="btn btn-primary" id="submitBtn">전송</button>
+        </form>
+        <br>
+        <div id="map" style="width:600px;height:400px;"></div>
+    </div>
 	<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d8a73cfa5a833cba814b8937d2b54a0e&libraries=services"></script>
 	<script>
 		var container = document.getElementById('map');
