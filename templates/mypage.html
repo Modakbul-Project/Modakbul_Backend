@@ -214,7 +214,11 @@
             <div class="myPage container">
             <div class="sidePage">
                <div class="sideTop">
-               <div class="profilepic"></div>
+               <div class="profilepic">
+                   {% if session['profile'] %} <!-- 프로필이 있다면 -->
+                        <img src="{{session['profile']}}" width="150px"; height="150px;" style="border-radius: 50%;">
+                    {% endif %}
+               </div>
                 <h2 class="listTitle">{{session['username']}}</h2>
                 <div class="level">Lv. 00</div>
                 <button class="makeMeet">모임만들기</button>
