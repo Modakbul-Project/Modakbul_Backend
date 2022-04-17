@@ -3,6 +3,7 @@
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="../static/parsley.js" type="text/javascript"></script>  <!--유효성 검증 js-->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" type="text/javascript"></script>
     <meta charset="UTF-8">
     <title>모닥불</title>
 </head>
@@ -117,6 +118,14 @@
 
 </style>
 <body>
+    <!--서버에서 flash로 넘어온 메시지가 있다면 alert로 출력 -->
+    {%with messages = get_flashed_messages()%}
+      {%if messages %}
+            <script type="text/javascript">
+              alert("{{messages[-1]}}");
+            </script>
+        {%endif%}
+    {%endwith%}
    <div class="main container">
        <header class="container">
            <a class="logo" href="/"> 모닥불 </a>
@@ -131,7 +140,8 @@
        <div class="contents conatainer">
            <div class="loginBox">
                <a class="logo" href="/kakao"> 모닥불 </a>
-               <div class="fromWrap"><form action="#" method="post" data-parsley-validate>
+               <div class="fromWrap">
+                   <form action="#" method="post" data-parsley-validate>
                    <input type="text" name="id" placeholder="아이디" data-parsley-errors-container="div[id='idError']" data-parsley-error-message="아이디를 입력하세요!" required>
                     <div class="row">  <!--에러 메시지 출력-->
                         <div class="col-md-6">
