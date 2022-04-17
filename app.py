@@ -1,12 +1,17 @@
 from flask import Flask, render_template, redirect, request, url_for, json, session, flash
 from pymongo import MongoClient
 from bson.json_util import ObjectId
+from authlib.integrations.flask_client import OAuth
 from markupsafe import escape
 from datetime import timedelta
 
 app = Flask(__name__)
 app.secret_key = 'secretkey'  # secret_key는 서버상에 동작하는 어플리케이션 구분하기 위해 사용하고 복잡하게 만들어야 합니다.
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=60) # 로그인 지속시간을 정합니다. 60분(1시간)
+
+oauth = OAuth(app)
+with open('./static/client_secret.json') as f:
+    json_data=json.load(f)
 
 
 # json 시리얼 오류 처리용 인코더
@@ -33,6 +38,36 @@ def main():
     # select 쿼리값 results에 저장
     results = collect.find()
     return render_template('main.html', data=results)
+
+
+@app.route('/google/')
+def google():
+    GOOGLE_CLIENT_ID = json_data['web']['client_id']
+    GOOGLE_CLIENT_SECRET = json_data['web']['client_secret']
+    CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'
+    oauth.register(
+        name='google',
+        client_id=GOOGLE_CLIENT_ID,
+        client_secret=GOOGLE_CLIENT_SECRET,
+        server_metadata_url=CONF_URL,
+        client_kwargs={
+            'scope': 'openid email profile'
+        }
+    )
+    # Redirect to google_auth function
+    redirect_uri = url_for('google_auth', _external=True)
+    print(redirect_uri)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+
+@app.route('/google/auth/')
+def google_auth():
+    token = oauth.google.authorize_access_token()
+    user = token.get('userinfo')
+    if user:
+        session['userid'] = user.email
+        session['username'] = user.name
+    return redirect('/')
 
 
 @app.route('/login', methods=['GET', 'POST'])
