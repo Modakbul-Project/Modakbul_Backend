@@ -11,6 +11,14 @@
     <title>회원가입</title>
 </head>
 <body>
+    <!--서버에서 flash로 넘어온 메시지가 있다면 alert로 출력 -->
+    {%with messages = get_flashed_messages()%}
+      {%if messages %}
+            <script type="text/javascript">
+              alert("{{messages[-1]}}");
+            </script>
+        {%endif%}
+    {%endwith%}
     <div class="container">
         <h5 class="my-3 border-bottom pb-2">회원가입</h5>
         <form method="post" action="/signup" data-parsley-validate>
