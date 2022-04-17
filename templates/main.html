@@ -168,7 +168,7 @@
                {% if not session['userid'] %}
                     <button style=margin-right:20px;"><a href="/login">로그인</a></button>
                {% else %}
-                    {{session['userid']}}님 반갑습니다.
+                    {{session['username']}}님 반갑습니다.
                     <button style="margin-left:20px;margin-right:20px;"><a href="/logout">로그아웃</a></button>
                {% endif %}
                <div class="search"><form action="#" method="post">
