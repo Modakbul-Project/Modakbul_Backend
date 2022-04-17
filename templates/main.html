@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="{{ url_for('static', filename='jquery.mousewheel.js') }}"></script>
@@ -165,11 +165,17 @@
        <header class="container">
            <a class="logo" href="/"> 모닥불 </a>
            <nav class="navbar">
-           <div class="search"><form action="#" method="post">
-               <input type="text" name="keyword" placeholder="검색">
-               <input type="submit" value="src">
-           </form></div>
-           <button class="mypage"><a href="/mypage">mypage</a></button>
+               {% if not session['userid'] %}
+                    <button style=margin-right:20px;"><a href="/login">로그인</a></button>
+               {% else %}
+                    {{session['userid']}}님 반갑습니다.
+                    <button style="margin-left:20px;margin-right:20px;"><a href="/logout">로그아웃</a></button>
+               {% endif %}
+               <div class="search"><form action="#" method="post">
+                   <input type="text" name="keyword" placeholder="검색">
+                   <input type="submit" value="src">
+               </form></div>
+               <button class="mypage"><a href="/mypage">mypage</a></button>
            </nav>
         </header>
        <div class="contents conatainer">
@@ -262,7 +268,7 @@
             var mapContainer = document.getElementById('map'),
                 mapOption = {
                     center: new kakao.maps.LatLng(37.5826052,127.0101245), // 지도의 중심좌표
-                    level: 3 // 지도의 확대 레벨
+                    level: 5 // 지도의 확대 레벨
                 };
 
             var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
