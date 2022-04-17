@@ -67,6 +67,7 @@ def google_auth():
     if user:
         session['userid'] = user.email
         session['username'] = user.name
+        session['profile'] = user.picture
     return redirect('/')
 
 
