@@ -83,10 +83,11 @@ def login():
 
         # 폼에서 입력받은 userid와 password값이 있는지 db에서 조회
         result = list(collect.find({'userid': userid, 'password': password}))
-        username = result[0]['username']
-        profile = "./static/user.png"
+
         #userid와 password값이 db에 있다면 세션에 값입력
         if result:
+            username = result[0]['username']
+            profile = "./static/user.png"
             session['userid'] = userid
             session['password'] = password
             session['username'] = username
