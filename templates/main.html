@@ -165,12 +165,12 @@
        <header class="container">
            <a class="logo" href="/"> 모닥불 </a>
            <nav class="navbar">
-               {% if not session['userid'] %}
+               {% if not session['userid'] %} <!-- 로그인이 안되어 있을 경우 -->
                     <button style=margin-right:20px;"><a href="/login">로그인</a></button>
                {% else %}
                {% if session['profile'] %} <!-- 프로필이 있다면 -->
                     <img src="{{session['profile']}}" width="30px"; height="30px;" style="margin-right:5px;border-radius:50%;">
-               {% endif %}
+               {% endif %}                 <!-- 로그인이 되어 있을 경우 -->
                     {{session['username']}}님 반갑습니다.
                     <button style="margin-left:20px;margin-right:20px;"><a href="/logout">로그아웃</a></button>
                {% endif %}
