@@ -168,8 +168,7 @@ def login():
 def logout():
     #세션에서 값 삭제
     session.pop('userid', None)
-    session.pop('userprofile', None)
-    session.pop('username', None)
+
     return redirect(url_for('main'))
 
 
