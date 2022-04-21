@@ -40,6 +40,69 @@ def main():
     return render_template('main.html', data=results)
 
 
+@app.route('/find_pw', methods=['GET', 'POST'])
+def find_pw():
+    if request.method == "POST":
+        # collection 생성
+        collect = db.mongoUser
+
+        # form에서 가져온 데이터들
+        userid = request.form["userid"]
+        username = request.form["username"]
+        email = request.form["email"]
+        phone = request.form["phone"]
+
+        # 회원정보가 db에 있는지 검색
+        result = list(collect.find({'userid': userid, 'username': username, 'email': email, 'phone': phone}))
+
+        if result:  # 회원 정보가 있을 때
+            password = result[0]['password']
+            msg = username + "님의 비밀번호는 " + password + "입니다."
+            flash(msg)  # 리턴할 때 같이 넘겨줄 메시지
+            return redirect(url_for('login'))
+        else:  # 회원정보가 없을 때
+            msg = "회원정보와 일치하는 비밀번호가 없습니다."
+            flash(msg)  # 리턴할 때 같이 넘겨줄 메시지
+            return redirect(url_for('find_pw'))
+    # GET일 경우
+    return render_template('find_pw.html')
+
+
+@app.route('/find_id', methods=['GET', 'POST'])
+def find_id():
+    if request.method == "POST":
+        # collection 생성
+        collect = db.mongoUser
+
+        # form에서 가져온 데이터들
+        username = request.form["username"]
+        email = request.form["email"]
+        phone = request.form["phone"]
+
+        # 회원정보가 db에 있는지 검색
+        result = list(collect.find({'username': username, 'email': email, 'phone': phone}))
+
+        if result: #회원 정보가 있을 때
+            userid = result[0]['userid']
+            msg = username+"님의 아이디는 "+userid+"입니다."
+            flash(msg) #리턴할 때 같이 넘겨줄 메시지
+            return redirect(url_for('login'))
+        else: #회원정보가 없을 때
+            msg = "회원정보와 일치하는 아이디가 없습니다."
+            flash(msg)  # 리턴할 때 같이 넘겨줄 메시지
+            return redirect(url_for('find_id'))
+    #GET일 경우
+    return render_template('find_id.html')
+
+
+@app.route('/mypage')
+def my_page():
+    if 'userid' in session:  # 로그인 여부 확인
+        return render_template('mypage.html')
+    else:
+        return redirect('/login')
+
+
 @app.route('/google/')
 def google():
     GOOGLE_CLIENT_ID = json_data['web']['client_id']
@@ -105,6 +168,8 @@ def login():
 def logout():
     #세션에서 값 삭제
     session.pop('userid', None)
+    session.pop('userprofile', None)
+    session.pop('username', None)
     return redirect(url_for('main'))
 
 
@@ -150,91 +215,6 @@ def signup():
             return redirect(url_for('signup'))
     else:  # 메소드가 GET일 경우
         return render_template('signup.html')
-
-
-@app.route('/input')
-@app.route('/input<int:num>')
-def inputTest(num=None):
-    return render_template('input.html', num=num)
-
-
-@app.route('/calculate', methods=['POST'])
-def calculate(num=None):
-    if request.method == 'POST':
-        temp = request.form['num']
-    else:
-        temp = None
-    return redirect(url_for('inputTest', num=temp))
-
-
-@app.route('/mongo', methods=['GET'])
-def mongoTest():
-    # collection 생성
-    collect = db.mongoTest
-    results = collect.find()
-    return render_template('mongo.html', data=results)
-
-
-@app.route('/write', methods=['GET', 'POST'])
-def write():
-    if request.method == "POST":
-        # collection 생성
-        collect = db.mongoTest
-
-        name = request.form["name"]
-        contents = request.form["contents"]
-
-        # document 생성
-        doc = {
-            "name": name,
-            "contents": contents
-        }
-        # document 삽입
-        collect.insert_one(doc)
-        return redirect(url_for('write'))
-    else:
-        return render_template('write.html')
-
-
-@app.route('/kakao2db', methods=['GET', 'POST'])
-def kakao2db():
-    if request.method == "POST":
-        # collection 생성
-        collect = db.mongoKakao
-
-        address = request.form["address"]
-        title = request.form["title"]
-        topic = request.form["topic"]
-        recruit_num = request.form["recruit_num"]
-        contents = request.form["contents"]
-        lat = request.form["lat"]
-        lng = request.form["lng"]
-
-        # document 생성
-        doc = {
-            "address": address,
-            "title": title,
-            "topic": topic,
-            "recruit_num": recruit_num,
-            "contents": contents,
-            "lat": lat,
-            "lng": lng
-        }
-        # document 삽입
-        collect.insert_one(doc)
-        return redirect(url_for('main'))
-    else:
-        return render_template('kakao2db.html')
-
-
-@app.route('/kakao', methods=['GET'])
-def kakao():
-    # collection 생성
-    collect = db.mongoKakao
-
-    # select 쿼리값 results에 저장
-    results = collect.find()
-    return render_template('kakao.html', data=results)
 
 
 if __name__ == '__main__':
