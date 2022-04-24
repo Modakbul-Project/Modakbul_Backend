@@ -385,31 +385,8 @@
             </script> <!--내 모임-->
             <div class="cardContainer">
                 <div class="cards makeSelf">
-                    <ul>
-                        <li class="card" id="mycard1">
-
-                        </li>
-                        <li class="card">
-                            카드정보
-                        </li>
-                        <li class="card">
-                            카드정보
-                        </li>
-                        <li class="card">
-                            카드정보
-                        </li>
-                        <li class="card">
-                            카드정보
-                        </li>
-                        <li class="card">
-                            카드정보
-                        </li>
-                        <li class="card">
-                            카드정보
-                        </li>
-                        <li class="card">
-                            카드정보
-                        </li>
+                    <ul id="mycard">
+                        <!-- 이 부분에 <li>로 모임 카드들 추가됨-->
                     </ul>
                 </div>
                 <div class="scrollBt-left">왼쪽버튼</div>
@@ -427,31 +404,8 @@
             </div>
             <div class="cardContainer">
                 <div class="cards participate">
-                    <ul>
-                        <li class="card" id="joincard1">
-
-                        </li>
-                        <li class="card">
-                            카드정보
-                        </li>
-                        <li class="card">
-                            카드정보
-                        </li>
-                        <li class="card">
-                            카드정보
-                        </li>
-                        <li class="card">
-                            카드정보
-                        </li>
-                        <li class="card">
-                            카드정보
-                        </li>
-                        <li class="card">
-                            카드정보
-                        </li>
-                        <li class="card">
-                            카드정보
-                        </li>
+                    <ul id="joincard">
+                        <!-- 이 부분에 <li>로 모임 카드들 추가됨-->
                     </ul>
                 </div>
                 <div class="scrollBt-left">왼쪽버튼</div>
@@ -566,13 +520,13 @@
                             let user_id = $("#user_id1").html();
                             for (let i = 0; i < response.length; i++) {
                                 if (response[i].leader_id == user_id) {
-                                    document.getElementById('mycard1').innerHTML = "태그 : " + response[i].tag_id +
+                                    document.getElementById('mycard').innerHTML += "<li class='card'>" + "태그 : " + response[i].tag_id +
                                         "<br>" + "인원 수 : " + response[i].members_id + "<br>" + "분류 : " +
-                                        response[i].study_id + "<br>" + "모임장 : " + response[i].leader_name;
+                                        response[i].study_id + "<br>" + "모임장 : " + response[i].leader_name + "</li>";
                                 } else {
-                                    document.getElementById('joincard1').innerHTML = "태그 : " + response[i].tag_id +
+                                    document.getElementById('joincard').innerHTML += "<li class='card'>" + "태그 : " + response[i].tag_id +
                                         "<br>" + "인원 수 : " + response[i].members_id + "<br>" + "분류 : " +
-                                        response[i].study_id + "<br>" + "모임장 : " + response[i].leader_name;
+                                        response[i].study_id + "<br>" + "모임장 : " + response[i].leader_name + "</li>";
                                 }
                             }
 
