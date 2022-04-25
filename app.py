@@ -40,6 +40,71 @@ def main():
     return render_template('main.html', data=results)
 
 
+@app.route('/notice/<id>') #게시판 or 공지사항에 작성된 글 읽기 페이지
+def notice(id=None):
+    if 'userid' in session:  # 로그인 여부 확인
+        # collection 생성
+        collect = db.mongoBoard
+        #db에서 id와 일치하는 글 검색
+        result = list(collect.find({'_id': ObjectId(id)}))
+        result = result[0]
+        return render_template('read.html', data=result)
+    else: #로그인 안되어 있을 경우
+        return redirect('/login')
+
+
+@app.route('/write', methods=['GET', 'POST']) #게시판 or 공지사항 글쓰기 페이지
+def write():
+    if 'userid' in session:  # 로그인 여부 확인
+        if request.method == "POST":
+            # collection 생성
+            collect = db.mongoBoard
+
+            # form에서 가져온 데이터들
+            notice = request.form["notice"]
+            title = request.form["title"]
+            contents = request.form["contents"]
+            userid = session['userid']
+            username = session['username']
+
+            # document 생성
+            doc = {
+                "notice": notice,
+                "title": title,
+                "contents": contents,
+                "userid": userid,
+                "username": username,
+                "create_time": str(now.date())
+            }
+            collect.insert_one(doc)
+            return redirect(url_for('meet_page'))
+        # GET일 경우
+        return render_template('write.html')
+    else: #로그인 안되어 있을 경우
+        return redirect('/login')
+
+
+@app.route('/meet')
+def meet_page():
+    if 'userid' in session:  # 로그인 여부 확인
+        # collection 생성
+        collect = db.mongoBoard
+
+        # select 쿼리값 results에 저장
+        results = collect.find()
+        return render_template('meetpage.html', data=results)
+    else:
+        return redirect('/login')
+
+
+@app.route('/meetadmin')
+def meet_admin():
+    if 'userid' in session:  # 로그인 여부 확인
+        return render_template('meetpage.html')
+    else:
+        return redirect('/login')
+
+
 @app.route('/find_pw', methods=['GET', 'POST'])
 def find_pw():
     if request.method == "POST":
