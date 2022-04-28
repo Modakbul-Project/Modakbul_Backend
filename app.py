@@ -3,12 +3,13 @@ from pymongo import MongoClient
 from bson.json_util import ObjectId
 from authlib.integrations.flask_client import OAuth
 from datetime import timedelta, datetime
+from werkzeug.utils import secure_filename
 
 now = datetime.now()
 
 app = Flask(__name__)
 app.secret_key = 'secretkey'  # secret_key는 서버상에 동작하는 어플리케이션 구분하기 위해 사용하고 복잡하게 만들어야 합니다.
-app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=60) # 로그인 지속시간을 정합니다. 60분(1시간)
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=60)  # 로그인 지속시간을 정합니다. 60분(1시간)
 
 oauth = OAuth(app)
 with open('./static/client_secret.json') as f:
@@ -83,16 +84,16 @@ def find_id():
         # 회원정보가 db에 있는지 검색
         result = list(collect.find({'username': username, 'email': email, 'phone': phone}))
 
-        if result: #회원 정보가 있을 때
+        if result:  # 회원 정보가 있을 때
             userid = result[0]['userid']
-            msg = username+"님의 아이디는 "+userid+"입니다."
-            flash(msg) #리턴할 때 같이 넘겨줄 메시지
+            msg = username + "님의 아이디는 " + userid + "입니다."
+            flash(msg)  # 리턴할 때 같이 넘겨줄 메시지
             return redirect(url_for('login'))
-        else: #회원정보가 없을 때
+        else:  # 회원정보가 없을 때
             msg = "회원정보와 일치하는 아이디가 없습니다."
             flash(msg)  # 리턴할 때 같이 넘겨줄 메시지
             return redirect(url_for('find_id'))
-    #GET일 경우
+    # GET일 경우
     return render_template('find_id.html')
 
 
@@ -103,6 +104,42 @@ def my_page():
     else:
         return redirect('/login')
 
+
+@app.route('/pfedit', methods=['GET', 'POST'])
+def profile_edit():
+    if 'userid' in session:  # 로그인 여부 확인
+        if request.method == "POST":
+            # collection 생성
+            collect = db.mongoUser
+
+            # form에서 값이 넘어오면 변수에 값 할당
+            # 넘어오지 않는다면 null값 할당
+            f = request.files["profile"]
+            profile = f.filename
+            username = request.form["username"]
+            introduce = request.form["introduce"]
+
+            doc = {}
+
+            if profile:  # form에서 넘어온 profile 값이 있다면
+                f.save('./static/profile/' + secure_filename(profile))  # 프로필 이미지 파일 저장 (경로: static/profile/)
+                doc.update({'profile': profile})
+                session['profile'] = './static/profile/' + profile
+            if username:  # form에서 넘어온 username 값이 있다면
+                doc.update({'username': username})
+                session['username'] = username
+            if introduce:  # form에서 넘어온 introduce 값이 있다면
+                doc.update({'introduce': introduce})
+
+            # 변경된 값 db에 반영
+            collect.update_one({'userid': session['userid']}, {'$set': doc})
+            redirect(url_for('my_page'))
+
+        # GET일 경우
+        return render_template('profileedit.html')
+    else:
+        return redirect('/login')
+    
 
 @app.route('/google/')
 def google():
@@ -141,33 +178,33 @@ def login():
         # collection 생성
         collect = db.mongoUser
 
-        #폼에서 ID/PW 가져오기
+        # 폼에서 ID/PW 가져오기
         userid = request.form['id']
         password = request.form['password']
 
         # 폼에서 입력받은 userid와 password값이 있는지 db에서 조회
         result = list(collect.find({'userid': userid, 'password': password}))
 
-        #userid와 password값이 db에 있다면 세션에 값입력
+        # userid와 password값이 db에 있다면 세션에 값입력
         if result:
             username = result[0]['username']
-            profile = "./static/user.png"
+            profile = 'static/profile/' + result[0]['profile']
             session['userid'] = userid
             session['password'] = password
             session['username'] = username
             session['profile'] = profile
             return redirect(url_for('main'))
-        else: #userid와 password값이 db에 없을 경우 (id 또는 pw가 틀렸을 경우)
+        else:  # userid와 password값이 db에 없을 경우 (id 또는 pw가 틀렸을 경우)
             msg = "아이디와 비밀번호를 다시 확인해주세요"
-            flash(msg) #리턴할 때 같이 넘겨줄 메시지
+            flash(msg)  # 리턴할 때 같이 넘겨줄 메시지
             redirect(url_for('login'))
-    #GET일 경우
+    # GET일 경우
     return render_template('login.html')
 
 
 @app.route('/logout')
 def logout():
-    #세션에서 값 삭제
+    # 세션에서 값 삭제
     session.pop('userid', None)
     return redirect(url_for('main'))
 
@@ -189,6 +226,7 @@ def signup():
 
         # document 생성
         doc = {
+            "profile": "./static/profile/user.png",
             "username": username,
             "userid": userid,
             "password": password,
@@ -196,6 +234,7 @@ def signup():
             "birth": birth,
             "email": email,
             "phone": phone,
+            "introduce": "",
             "meeting": "",
             "role": ""
         }
@@ -210,26 +249,26 @@ def signup():
         # userid가 중복될 경우 다시 signup페이지로 이동
         else:
             msg = "이미 존재하는 아이디입니다."
-            flash(msg) #리턴할 때 같이 넘겨줄 메시지
+            flash(msg)  # 리턴할 때 같이 넘겨줄 메시지
             return redirect(url_for('signup'))
     else:  # 메소드가 GET일 경우
         return render_template('signup.html')
 
 
-@app.route('/notice/<id>') #게시판 or 공지사항에 작성된 글 읽기 페이지
+@app.route('/notice/<id>')  # 게시판 or 공지사항에 작성된 글 읽기 페이지
 def notice(id=None):
     if 'userid' in session:  # 로그인 여부 확인
         # collection 생성
         collect = db.mongoBoard
-        #db에서 id와 일치하는 글 검색
+        # db에서 id와 일치하는 글 검색
         result = list(collect.find({'_id': ObjectId(id)}))
         result = result[0]
         return render_template('read.html', data=result)
-    else: #로그인 안되어 있을 경우
+    else:  # 로그인 안되어 있을 경우
         return redirect('/login')
 
 
-@app.route('/write', methods=['GET', 'POST']) #게시판 or 공지사항 글쓰기 페이지
+@app.route('/write', methods=['GET', 'POST'])  # 게시판 or 공지사항 글쓰기 페이지
 def write():
     if 'userid' in session:  # 로그인 여부 확인
         if request.method == "POST":
@@ -256,7 +295,7 @@ def write():
             return redirect(url_for('meet_page'))
         # GET일 경우
         return render_template('write.html')
-    else: #로그인 안되어 있을 경우
+    else:  # 로그인 안되어 있을 경우
         return redirect('/login')
 
 
@@ -286,27 +325,26 @@ def delete(id=None):
     if 'userid' in session:  # 로그인 여부 확인
         # collection 생성
         collect = db.mongoBoard
-        #db에서 id와 일치하는 글 검색
+        # db에서 id와 일치하는 글 검색
         result = list(collect.find({'_id': ObjectId(id)}))
-        if result[0]['userid'] == session['userid']: #작성자와 로그인한 사용자가 일치하면
-            collect.delete_one({'_id': ObjectId(id)}) #해당 게시글 삭제
+        if result[0]['userid'] == session['userid']:  # 작성자와 로그인한 사용자가 일치하면
+            collect.delete_one({'_id': ObjectId(id)})  # 해당 게시글 삭제
             return redirect(url_for('meet_page'))
-        else: #작성자와 로그인한 사용자가 일치하지 않으면
+        else:  # 작성자와 로그인한 사용자가 일치하지 않으면
             msg = "삭제 권한이 없습니다."
             flash(msg)  # 리턴할 때 같이 넘겨줄 메시지
-            return redirect('/notice/'+id)
+            return redirect('/notice/' + id)
     else:  # 로그인 안되어 있을 경우
         return redirect('/login')
 
 
-@app.route('/edit/<id>', methods=['GET', 'POST']) #게시판 or 공지사항에 작성된 글 읽기 페이지
+@app.route('/edit/<id>', methods=['GET', 'POST'])  # 게시판 or 공지사항에 작성된 글 읽기 페이지
 def edit(id=None):
     if 'userid' in session:  # 로그인 여부 확인
         # collection 생성
         collect = db.mongoBoard
 
         if request.method == "POST":
-
             # form에서 가져온 데이터들
             notice = request.form["notice"]
             title = request.form["title"]
@@ -327,17 +365,17 @@ def edit(id=None):
             return redirect(url_for('meet_page'))
 
         # GET일 경우
-        #db에서 id와 일치하는 글 검색
+        # db에서 id와 일치하는 글 검색
         result = list(collect.find({'_id': ObjectId(id)}))
-        if result[0]['userid'] == session['userid']: #작성자와 로그인한 사용자가 일치하면
+        if result[0]['userid'] == session['userid']:  # 작성자와 로그인한 사용자가 일치하면
             result = result[0]
             return render_template('edit.html', data=result)
-        else: #작성자와 로그인한 사용자가 일치하지 않으면
+        else:  # 작성자와 로그인한 사용자가 일치하지 않으면
             msg = "수정 권한이 없습니다."
             flash(msg)  # 리턴할 때 같이 넘겨줄 메시지
-            return redirect('/notice/'+id)
+            return redirect('/notice/' + id)
 
-    else: #로그인 안되어 있을 경우
+    else:  # 로그인 안되어 있을 경우
         return redirect('/login')
 
 
