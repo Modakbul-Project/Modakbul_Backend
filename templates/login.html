@@ -116,6 +116,14 @@
         background-color: gainsboro;
     }
 
+    a {
+        color: black;
+        text-decoration-line: none;
+    }
+
+    a:visited {
+        color : black;
+    }
 </style>
 <body>
     <!--서버에서 flash로 넘어온 메시지가 있다면 alert로 출력 -->
@@ -163,10 +171,10 @@
                <div class="loginOptions">
                    <ul>
                        <li>
-                           <a href="">비밀번호 찾기</a>
+                           <a href="/find_id">아이디 찾기</a>
                        </li>
                        <li>
-                           <a href="">아이디 찾기</a>
+                           <a href="/find_pw">비밀번호 찾기</a>
                        </li>
                        <li>
                             <a href="/signup">회원가입</a>
