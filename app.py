@@ -35,11 +35,12 @@ db = conn.Test
 @app.route('/', methods=['GET'])
 def main():
     # collection 생성
-    collect = db.mongoKakao
+    collect = db.mongoMeeting
 
     # select 쿼리값 results에 저장
     results = collect.find()
-    return render_template('main.html', data=results)
+
+    return render_template('test.html', data=results)
 
 
 @app.route('/find_pw', methods=['GET', 'POST'])
@@ -105,6 +106,64 @@ def my_page():
         return redirect('/login')
 
 
+@app.route('/makepage', methods=['GET', 'POST'])
+def make_page():
+    if 'userid' in session:  # 로그인 여부 확인
+        if request.method == "POST":
+            # collection 생성
+            collect = db.mongoMeeting
+            user_collect = db.mongoUser
+
+            f = request.files["meet_profile"]
+            meet_profile = f.filename
+            meet_name = request.form["meet_name"]
+            meet_title = request.form["meet_title"]
+            location = request.form["location"]
+            category = request.form["category"]
+            headcount = request.form["headcount"]
+            address = request.form["address"]
+            meetDetail = request.form["meetDetail"]
+            tags = request.form["tags"]
+            lat = request.form["lat"]
+            lng = request.form["lng"]
+            userid = session['userid']
+
+            tag_arr = tags.split('#')  # 태그들이 저장된 배열
+
+            # document 생성
+            doc = {
+                "meet_name": meet_name,
+                "leader_id": userid,
+                "meet_title": meet_title,
+                "location": location,
+                "category": category,
+                "headcount": headcount,
+                "address": address,
+                "meetDetail": meetDetail,
+                "tags": tag_arr,
+                "lat": lat,
+                "lng": lng
+            }
+
+            if meet_profile:  # form에서 넘어온 profile 값이 있다면
+                f.save(
+                    './static/meet_profile/' + secure_filename(meet_profile))  # 모임 프로필 이미지 파일 저장 (경로: static/meet_profile/)
+                doc.update({'meet_profile': meet_profile})
+                session['meet_profile'] = './static/meet_profile/' + meet_profile
+
+
+            # user테이블에서 모임장의 meeting에 새로 만든 모임 추가 (배열에 값을 추가할 때는 $push 사용)
+            user_collect.update_one({'userid': session['userid']}, {'$push': {"meeting": meet_name}})
+            # document 삽입
+            collect.insert_one(doc)
+
+            redirect(url_for('my_page'))
+        # GET일 경우
+        return render_template('makemeet.html')
+    else:
+        return redirect('/login')
+
+
 @app.route('/pfedit', methods=['GET', 'POST'])
 def profile_edit():
     if 'userid' in session:  # 로그인 여부 확인
@@ -139,7 +198,7 @@ def profile_edit():
         return render_template('profileedit.html')
     else:
         return redirect('/login')
-    
+
 
 @app.route('/google/')
 def google():
