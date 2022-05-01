@@ -32,8 +32,14 @@
         position: relative;
         justify-content: space-between;
         align-items: center;
-        background-color: white;
-        border-bottom: 1px solid lightgray;
+        background-color: #F5A9A9;
+    }
+
+    header .logo{
+        font-weight:bold;
+        color:white;
+        font-size:2rem;
+        text-decoration: none;
     }
     .navbar{
         display: flex;
@@ -53,7 +59,7 @@
         display:flex;
         position: relative;
         align-items: center;
-        background-color: lightblue;
+        background-color: #F5A9A9;;
         z-index: 5;
     }
 
@@ -67,19 +73,19 @@
     .category form select{
         height:30px;
     }
-
-    .tags{
+    .tags li{
+        padding:5px;
         background-color: white;
-        padding:0.1rem;
         font-size: 0.5rem;
+        border-radius:10px;
+        margin-left:5px;
     }
 
     .cardContainer{
         position: relative;
         display:flex;
         align-items: center;
-        border: 1px solid gray;
-        background-color: lightblue;
+        background-color: #F5A9A9;
         overflow:hidden;
         padding: 1rem;
         padding-bottom:1.5rem;
@@ -144,6 +150,138 @@
         bottom:0;
     }
 
+    .detailsBg {
+        width:100%;
+        height:100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .detailsBg{
+        background: rgba(255, 255, 255, 0.5);
+        position: fixed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        top:0;
+        z-index: 100;
+    }
+
+    .detailsWrap{
+        max-width: 450px;
+        width:80%;
+        height:80%;
+        background-color: white;
+        border:1px solid lightgray;
+        border-radius: 5px;
+        display: flex;
+        flex-direction: column;
+        padding:2rem;
+    }
+
+    .detailTitle{
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+    .detailTitle .meetPic{
+        width:50px;
+        height:50px;
+        background-color: gainsboro;
+        border-radius: 50%;
+    }
+
+    .detailTitle h2{
+        margin: 0;
+        padding: 0;
+        margin-left: 10px;
+    }
+
+    .detailTitle span{
+        margin-left:10px;
+        padding-top: 10px;
+    }
+
+    .detailTags ul{
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        align-items: center;
+    }
+
+    .detailTags #bigTag li{
+        padding:10px 20px;
+        margin-right: 5px;
+        background-color: gainsboro;
+        border-radius: 50px;
+    }
+
+    .detailTags #smallTag li{
+        padding: 10px;
+        font-size: 0.1rem;
+    }
+
+    .detailTags #smallTag li::before{
+        content: "# ";
+        font-weight: bold;
+        font-size: 0.8rem;
+    }
+
+    .detailContents{
+        flex:1;
+        border: 1px solid lightgray;
+        overflow-y: scroll;
+    }
+
+    .detailContents img{
+        max-width:100%;
+    }
+
+    .detailFooter{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 1rem;
+    }
+
+    #numPeople{
+        font-size: 0.8rem;
+        font-weight: bold;
+        color:darkslategray;
+    }
+
+    #numPeople span:nth-child(1){
+        font-size: 1.5rem;
+    }
+
+    #numPeople span:nth-child(2){
+        font-size: 1rem;
+    }
+
+    #numPeople span:nth-child(3){
+        font-size: 1rem;
+    }
+
+    .detailFooter button{
+        border: 0;
+        color:white;
+        background-color: gray;
+        font-weight: bold;
+        padding:10px 40px;
+        border-radius: 50px;
+    }
+      .detailTitle button{
+        position: absolute;
+        right:0;
+        top:0;
+        background: 0;
+        border: 0;
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
     .wrap {position: absolute;left: 0;bottom: 40px;width: 288px;height: 132px;margin-left: -144px;text-align: left;overflow: hidden;font-size: 12px;font-family: 'Malgun Gothic', dotum, '돋움', sans-serif;line-height: 1.5;}
     .wrap * {padding: 0;margin: 0;}
     .wrap .info {width: 286px;height: 120px;border-radius: 5px;border-bottom: 2px solid #ccc;border-right: 1px solid #ccc;overflow: hidden;background: #fff;}
@@ -152,7 +290,7 @@
     .info .close {position: absolute;top: 10px;right: 10px;color: #888;width: 17px;height: 17px;background: url('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/overlay_close.png');}
     .info .close:hover {cursor: pointer;}
     .info .body {position: relative;overflow: hidden;}
-    .info .desc {position: relative;margin: 13px 0 0 90px;height: 75px;}
+    .info .desc {position: relative;margin: 5px 0 0 90px;height: 85px;}
     .desc .ellipsis {overflow: hidden;text-overflow: ellipsis;white-space: nowrap;}
     .desc .jibun {font-size: 11px;color: #888;margin-top: -2px;}
     .info .img {position: absolute;top: 6px;left: 5px;width: 73px;height: 71px;border: 1px solid #ddd;color: #888;overflow: hidden;}
@@ -165,19 +303,21 @@
        <header class="container">
            <a class="logo" href="/"> 모닥불 </a>
            <nav class="navbar">
-               {% if not session['userid'] %} <!-- 로그인이 안되어 있을 경우 -->
+               {% if not session['userid'] %}
                     <button style=margin-right:20px;"><a href="/login">로그인</a></button>
                {% else %}
-               {% if session['profile'] %} <!-- 프로필이 있다면 -->
-                    <img src="{{session['profile']}}" width="30px"; height="30px;" style="margin-right:5px;border-radius:50%;">
-               {% endif %}                 <!-- 로그인이 되어 있을 경우 -->
+                    {% if session['profile'] %} <!-- 프로필이 있다면 -->
+                        <img src="{{session['profile']}}" width="30px"; height="30px"; style="margin-right:5px;border-radius: 50%;">
+                    {% endif %}
                     {{session['username']}}님 반갑습니다.
                     <button style="margin-left:20px;margin-right:20px;"><a href="/logout">로그아웃</a></button>
                {% endif %}
-               <div class="search"><form action="#" method="post">
-                   <input type="text" name="keyword" placeholder="검색">
-                   <input type="submit" value="src">
-               </form></div>
+               <div class="search">
+                   <form action="#" method="post">
+                       <input type="text" name="keyword" placeholder="검색">
+                       <input type="submit" value="src">
+                   </form>
+               </div>
                <button class="mypage"><a href="/mypage">mypage</a></button>
            </nav>
         </header>
@@ -264,6 +404,12 @@
             });
            </script>
         </div>
+           <script>
+            $(".card").click(function(){
+                $(".detailsBg").show();
+                //this통해 검색, 받아와서 보여주기, 주소창에 정보 띄울 것!(주소로 카드 접근 가능하도록)
+            })
+           </script>
         <div id="map" style="width:100%;height:500px;margin-top:20px;"></div>
 
         <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=d8a73cfa5a833cba814b8937d2b54a0e"></script>
@@ -285,17 +431,23 @@
                     title: '<div class="wrap">' +
                     '    <div class="info">' +
                     '        <div class="title">' +
-                    '            {{i.title}}' +
+                    '            {{i.meet_title}}' +
                     '        </div>' +
                     '        <div class="body">' +
                     '            <div class="img">' +
-                    '                <img src="../static/study.jpg" width="73" height="70">' +
+                    '                <img src="../static/meet_profile/{{i.meet_profile}}" width="73" height="70">' +
                     '           </div>' +
                     '            <div class="desc">' +
-                    '                <div class="ellipsis">{{i.topic}}</div>' +
-                    '                <div class="jibun ellipsis">{{i.recruit_num}}명 모집합니다.</div>' +
-                    '                <div class="jibun ellipsis">{{i.contents}}</div>' +
+                    '                <div class="ellipsis">{{i.category}}</div>' +
+                    '                <div class="jibun ellipsis">{{i.headcount}}명 모집합니다.</div>' +
+                    '                <div class="jibun ellipsis">{{i.meetDetail}}</div>' +
                     '                <div class="jibun ellipsis">{{i.address}}</div>' +
+                    '                <div class="jibun ellipsis">                   ' +
+                    '                   {% for j in i.tags %}                       ' +
+                    '                       {% if j != ""%}                       ' +
+                    '                           #{{j}}                              ' +
+                    '                       {% endif %}                             ' +
+                    '                   {% endfor %} </div>                         ' +
                     '            </div>' +
                     '        </div>' +
                     '    </div>' +
@@ -346,6 +498,12 @@
            <!--팀원이나 간단한 정보들적기, 높이 낮아지면 사라짐-->
         </div>
        </div>
+    <script>
+    $(".detailsBg").hide();
+        $(".detailTitle button").click(function(){
+            $(".detailsBg").hide();
+        })
+    </script>
    </div>
 </body>
 </html>
