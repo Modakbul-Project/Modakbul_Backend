@@ -40,7 +40,7 @@ def main():
     # select 쿼리값 results에 저장
     results = collect.find()
 
-    return render_template('test.html', data=results)
+    return render_template('main.html', data=results)
 
 
 @app.route('/find_pw', methods=['GET', 'POST'])
