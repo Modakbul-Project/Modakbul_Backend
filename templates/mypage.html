@@ -1,24 +1,346 @@
-{% extends "base.html" %}
-{% block title %} : mypage{% endblock %}
-{% block head %}
-    <script src="{{ url_for('static', filename='jquery.mousewheel.js') }}"></script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <link rel = "stylesheet" href="static/css/mypage.css">
-    {{ super() }}
-{% endblock %}
-{% block body %}
-            <div class="myPage container">
-                {%include 'mypage_sidebar.html' %}
-                {%if mypage == 0 %}
-                    {%include 'mypage_cards_cnt.html' %}
-                {%elif mypage == 1 %}
-                    {%include 'mypage_mymeet_cnt.html' %}
-                {%endif%}
+      <script src="{{ url_for('static', filename='jquery.mousewheel.js') }}"></script>
+    <meta charset="UTF-8">
+    <title>모닥불</title>
+</head>
+<style>
+    html, body{
+        margin: 0;
+        border: 0;
+        width : 100%;
+        height: 100%;
+    }
+
+    h2, h3{
+        margin:0;
+    }
+
+    .main{
+        display:flex;
+        flex-direction: column;
+        margin: 0;
+        border: 0;
+        width : 100%;
+        height: 100%;
+    }
+
+    header{
+        top:0px;
+        padding: 1rem 2rem;
+        z-index:10;
+        display:flex;
+        position: relative;
+        justify-content: space-between;
+        align-items: center;
+        background-color: white;
+        border-bottom: 1px solid lightgray;
+    }
+    .navbar{
+        display: flex;
+        position: relative;
+    }
+    .search input{
+        height:30px;
+        margin-right:1rem;
+    }
+
+    .contents{
+        display: flex;
+        justify-content:center;
+        height: 100%;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .category {
+        flex:auto;
+        padding: 1rem;
+        padding-bottom: 0;
+        display:flex;
+        position: relative;
+        align-items: center;
+        background-color: lightblue;
+        z-index: 5;
+        justify-content: space-between;
+    }
+
+    .category ul {
+        list-style: none;
+        padding-left: 0;
+        display: flex;
+    }
+
+    .category form select{
+        height:30px;
+    }
+
+    .tags{
+        background-color: white;
+        padding:0.1rem;
+        font-size: 0.5rem;
+    }
+
+    .cardContainer{
+        position: relative;
+        display:flex;
+        align-items: center;
+        background-color: lightblue;
+        z-index: 5;
+        padding: 1rem;
+        padding-bottom:1.5rem;
+        height: 100%;
+    }
+    .cards{
+        flex:auto;
+        position: relative;
+        display:flex;
+        align-items: stretch;
+        flex-direction:row;
+        overflow: scroll;
+        white-space: nowrap;
+        ms-overflow-style: none; /* IE and Edge */
+        scrollbar-width: none; /* Firefox */
+        height:100%;
+    }
+
+    .cards::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera*/
+    }
+
+    .cards ul{
+        padding: 0;
+        margin: 0;
+    }
+
+    .card{
+        height: 99%;
+        padding:0;
+        margin-left:0;
+        margin-right:2px;
+        display: inline-block;
+        position: relative;
+        list-style: none;
+        width:200px;
+        border: 1px solid gray;
+        background-color:white;
+    }
+    .scrollBt-right{
+        position:absolute;
+        right:0;
+        z-index:4;
+    }
+
+    .scrollBt-left{
+        position:absolute;
+        left:0;
+        z-index:4;
+    }
+
+    .listTitle{
+        font-weight: bold;
+    }
+
+    .myPage{
+        flex:auto;
+        display: flex;
+        align-items: center;
+    }
+
+    .sidePage{
+        height:100%;
+       display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-around;
+    }
+
+    .sideTop{
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width:200px;
+        padding : 2rem;
+        text-align: center;
+    }
+
+    .profilepic{
+        width:150px;
+        height:150px;
+        background-color: lightgray;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .sidePage .listTitle{
+        padding-top: 1rem;
+    }
+
+    .makeMeet{
+        margin-top:1rem;
+        width: 100%;
+        height:30px;
+        border-radius: 30px;
+    }
+
+    .level{
+        font-size: 13px;
+        color:gray;
+    }
+
+    .sideOptions{
+        list-style: none;
+        padding-left: 0;
+        text-align: left;
+    }
+
+
+</style>
+<body>
+   <div class="main container">
+       <header class="container">
+           <a class="logo" href="/"> 모닥불 </a>
+           <nav class="navbar">
+           <div class="search"><form action="#" method="post">
+               <input type="text" name="keyword" placeholder="검색">
+               <input type="submit" value="src">
+           </form></div>
+           <button class="mypageBt"><a href="/mypage">mypage</a></button>
+           </nav>
+        </header>
+         <div class="myPage container">
+            <div class="sidePage">
+               <div class="sideTop">
+               <div class="profilepic">
+                   {% if session['profile'] %} <!-- 프로필이 있다면 -->
+                        <img src="{{session['profile']}}" width="150px"; height="150px;" style="border-radius: 50%;">
+                    {% endif %}
+               </div>
+                <h2 class="listTitle">{{session['username']}}</h2>
+                <div class="level">Lv. 00</div>
+                   <button class="makeMeet"><a href="/makepage">모임만들기</a></button>
+                <ul class="sideOptions">
+               <li><a href="/pfedit">프로필 수정</a></li>
+                    <li><a href="/mymeets">내 모임</a></li>
+                    <li><a href="/mymeets">참여중 모임</a></li>
+                    <li><a href="/mymeets">대기중 모임</a></li>
+                </ul>
                 </div>
-                {%include 'profileedit.html' %}
-                {%include 'makemeet.html' %}
-                <script type="text/javascript" src="{{url_for('static',filename='js/cardscroll.js')}}"></script>
-                {% endblock %}
-                {%block footer%}
-                <!--팀원이나 간단한 정보들적기, 높이 낮아지면 사라짐-->
-                {%endblock%}
+
+                <a href="/logout" class="logout">로그아웃</a>
+                </div>
+           <div class="contents conatainer">
+                <div class="category">
+                  <h3 class="ListTitle">내 모임</h3>
+                  <form action="#" method="post">
+                   <!-- 디자인 하려면 button->li로 넣어야 할듯 -->
+                    <select name="openClosed" id="openClosed">
+                        <option value="모집중">모집 중</option>
+                        <option value="모집완료">모집 완료</option>
+                    </select>
+               </form>
+                </div>
+               <script>
+                   //마우스 가로 스크롤 이벤트
+                $(function() {
+
+                    $(".cards").mousewheel(function(event, delta) {
+
+                        this.scrollLeft -= (delta * 30);
+
+                        event.preventDefault();
+
+                    });
+
+                });
+               </script>
+               <div class="cardContainer">
+               <div class="cards makeSelf">
+                   <ul>
+                   <li class="card">
+                       카드정보
+                   </li>
+                    <li class="card">
+                       카드정보
+                   </li>
+                    <li class="card">
+                       카드정보
+                   </li>
+                    <li class="card">
+                       카드정보
+                   </li>
+                   <li class="card">
+                       카드정보
+                   </li>
+                    <li class="card">
+                       카드정보
+                   </li>
+                    <li class="card">
+                       카드정보
+                   </li>
+                    <li class="card">
+                       카드정보
+                   </li>
+               </ul>
+               </div>
+                   <div class="scrollBt-left">왼쪽버튼</div>
+                   <div class="scrollBt-right">오른쪽버튼</div>
+            </div>
+            <div class="category">
+                  <h3 class="ListTitle">참여중 모임</h3>
+                  <form action="#" method="post">
+                   <!-- 디자인 하려면 button->li로 넣어야 할듯 -->
+                    <select name="openClosed" id="openClosed2">
+                        <option value="모집중">모집 중</option>
+                        <option value="모집완료">모집 완료</option>
+                    </select>
+               </form>
+                  </div>
+            <div class="cardContainer">
+               <div class="cards participate">
+                   <ul>
+                   <li class="card">
+                       카드정보
+                   </li>
+                    <li class="card">
+                       카드정보
+                   </li>
+                    <li class="card">
+                       카드정보
+                   </li>
+                    <li class="card">
+                       카드정보
+                   </li>
+                   <li class="card">
+                       카드정보
+                   </li>
+                    <li class="card">
+                       카드정보
+                   </li>
+                    <li class="card">
+                       카드정보
+                   </li>
+                    <li class="card">
+                       카드정보
+                   </li>
+               </ul>
+               </div>
+                   <div class="scrollBt-left">왼쪽버튼</div>
+                   <div class="scrollBt-right">오른쪽버튼</div>
+            </div>
+                <script>
+               //스크롤 버튼
+                    $(".scrollBt-right").click(function(){ $(this).siblings(".cards").animate({scrollLeft:"+=500"},800);
+                });
+                $(".scrollBt-left").click(function(){
+                    $(this).siblings(".cards").animate({scrollLeft:"-=500"},800);
+                });
+               </script>
+            </div>
+            </div>
+            </div>
+</body>
+</html>
