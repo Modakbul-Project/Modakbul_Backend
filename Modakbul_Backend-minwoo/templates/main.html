@@ -32,8 +32,14 @@
         position: relative;
         justify-content: space-between;
         align-items: center;
-        background-color: white;
-        border-bottom: 1px solid lightgray;
+        background-color: #F5A9A9;
+    }
+
+    header .logo {
+        font-weight: bold;
+        color: white;
+        font-size: 2rem;
+        text-decoration: none;
     }
 
     .navbar {
@@ -55,7 +61,7 @@
         display: flex;
         position: relative;
         align-items: center;
-        background-color: lightblue;
+        background-color: #F5A9A9;;
         z-index: 5;
     }
 
@@ -70,18 +76,19 @@
         height: 30px;
     }
 
-    .tags {
+    .tags li {
+        padding: 5px;
         background-color: white;
-        padding: 0.1rem;
         font-size: 0.5rem;
+        border-radius: 10px;
+        margin-left: 5px;
     }
 
     .cardContainer {
         position: relative;
         display: flex;
         align-items: center;
-        border: 1px solid gray;
-        background-color: lightblue;
+        background-color: #F5A9A9;
         overflow: hidden;
         padding: 1rem;
         padding-bottom: 1.5rem;
@@ -145,6 +152,140 @@
         width: 100%;
         text-align: center;
         bottom: 0;
+    }
+
+    .detailsBg {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .detailsBg {
+        background: rgba(255, 255, 255, 0.5);
+        position: fixed;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        top: 0;
+        z-index: 100;
+    }
+
+    .detailsWrap {
+        max-width: 450px;
+        width: 80%;
+        height: 80%;
+        background-color: white;
+        border: 1px solid lightgray;
+        border-radius: 5px;
+        display: flex;
+        flex-direction: column;
+        padding: 2rem;
+    }
+
+    .detailTitle {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+
+    .detailTitle .meetPic {
+        width: 50px;
+        height: 50px;
+        background-color: gainsboro;
+        border-radius: 50%;
+    }
+
+    .detailTitle h2 {
+        margin: 0;
+        padding: 0;
+        margin-left: 10px;
+    }
+
+    .detailTitle span {
+        margin-left: 10px;
+        padding-top: 10px;
+    }
+
+    .detailTags ul {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        align-items: center;
+    }
+
+    .detailTags #bigTag li {
+        padding: 10px 20px;
+        margin-right: 5px;
+        background-color: gainsboro;
+        border-radius: 50px;
+    }
+
+    .detailTags #smallTag li {
+        padding: 10px;
+        font-size: 0.1rem;
+    }
+
+    .detailTags #smallTag li::before {
+        content: "# ";
+        font-weight: bold;
+        font-size: 0.8rem;
+    }
+
+    .detailContents {
+        flex: 1;
+        border: 1px solid lightgray;
+        overflow-y: scroll;
+    }
+
+    .detailContents img {
+        max-width: 100%;
+    }
+
+    .detailFooter {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 1rem;
+    }
+
+    #numPeople {
+        font-size: 0.8rem;
+        font-weight: bold;
+        color: darkslategray;
+    }
+
+    #numPeople span:nth-child(1) {
+        font-size: 1.5rem;
+    }
+
+    #numPeople span:nth-child(2) {
+        font-size: 1rem;
+    }
+
+    #numPeople span:nth-child(3) {
+        font-size: 1rem;
+    }
+
+    .detailFooter button {
+        border: 0;
+        color: white;
+        background-color: gray;
+        font-weight: bold;
+        padding: 10px 40px;
+        border-radius: 50px;
+    }
+
+    .detailTitle button {
+        position: absolute;
+        right: 0;
+        top: 0;
+        background: 0;
+        border: 0;
+        font-size: 1.2rem;
+        font-weight: bold;
     }
 
     .wrap {
@@ -261,13 +402,13 @@
     <header class="container">
         <a class="logo" href="/"> 모닥불 </a>
         <nav class="navbar">
-            {% if not session['userid'] %}
+            {% if not session['userid'] %} <!-- 로그인이 안되어 있을 경우 -->
                 <button style=margin-right:20px;"><a href="/login">로그인</a></button>
             {% else %}
                 {% if session['profile'] %} <!-- 프로필이 있다면 -->
                     <img src="{{ session['profile'] }}" width="30px" ; height="30px;"
                          style="margin-right:5px;border-radius:50%;">
-                {% endif %}
+                {% endif %}                 <!-- 로그인이 되어 있을 경우 -->
                 {{ session['username'] }}님 반갑습니다.
                 <button style="margin-left:20px;margin-right:20px;"><a href="/logout">로그아웃</a></button>
             {% endif %}
@@ -425,11 +566,62 @@
                     overlay.setMap(null);
                 });
             }
+
+
+        </script>
+        <div class="footer conatainer">
+            <!--팀원이나 간단한 정보들적기, 높이 낮아지면 사라짐-->
+        </div>
+        <script>
+            $("#card1").click(function () {
+                alert("클릭인식됨");
+                $(".detailsBg").show();
+                //this통해 검색, 받아와서 보여주기, 주소창에 정보 띄울 것!(주소로 카드 접근 가능하도록)
+            })
         </script>
         <div class="footer conatainer">
             <!--팀원이나 간단한 정보들적기, 높이 낮아지면 사라짐-->
         </div>
     </div>
+    <div class="detailsBg">
+        <div class="detailsWrap">
+            <div class="detailTitle">
+                <button>X</button>
+                <div class="meetPic"><img src="" alt=""></div>
+                <h2>봄맞이 야외스터디 모집</h2>
+                <span>Lv.23</span>
+            </div>
+            <div class="detailTags">
+                <ul id="bigTag">
+                    <li>서울시 강남구</li>
+                    <li>자유 주제</li>
+                    <li>2~5명</li>
+                </ul>
+                <ul id="smallTag">
+                    <li>느긋한</li>
+                    <li>주제자유</li>
+                </ul>
+            </div>
+            <div class="detailContents">
+                <img src="{{ url_for('static', filename='map.png') }}"/>
+                본문 내용 lorem ipsum
+            </div>
+            <div class="detailFooter">
+                <div id="numPeople">현재 인원 수 <span>2</span><span>/</span><span>5</span></div>
+                <button onclick="location.href='#'">참여하기</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(".detailsBg").hide();
+        $(".detailTitle button").click(function () {
+            $(".detailsBg").hide();
+        })
+    </script>
+
+</div>
+
+
 </div>
 </body>
 <script>
@@ -444,18 +636,27 @@
                 let user_id = $("#user_id1").html();
                 for (let i = 0; i < response.length; i++) {
                     if (response[i].leader_id != user_id) {
-                        document.getElementById('card_list').innerHTML += "<li class='card'>" + "태그 : " + response[i].tag_id +
-                            "<br>" + "인원 수 : " + response[i].members_id + "<br>" + "분류 : " +
-                            response[i].study_id + "<br>" + "모임장 : " + response[i].leader_name + "</li>";
-                    }
-                }
+                        document.getElementById('card_list').innerHTML += "<li class='card'>" +
+                            +"태그 : " + response[i].tag_id + "<br>" + "인원 수 : " + response[i].members_id +
+                            "<br>" + "분류 : " + response[i].study_id + "<br>" + "모임장 : " +
+                            response[i].leader_name + "<br>" + "<button id='" + "card" + i + "'>" + "상세보기" +
+                            "</button>" + "</li>";
 
+                        $("#card1").click(function () {
+                            alert("클릭인식됨");
+                            $(".detailsBg").show();
+                            //this통해 검색, 받아와서 보여주기, 주소창에 정보 띄울 것!(주소로 카드 접근 가능하도록)
+                        })
+                    }
+
+                }
 
             }
         })
 
     }
-    window.onload = meeting_read;
-</script>
 
+    window.onload = meeting_read;
+
+</script>
 </html>
