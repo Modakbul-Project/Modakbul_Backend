@@ -32,6 +32,14 @@ conn = MongoClient('127.0.0.1')
 db = conn.Test
 
 
+@app.route('/mymeets')
+def my_meets():
+    if 'userid' in session:  # 로그인 여부 확인
+        return render_template('mypage.html', mypage=1)
+    else:
+        return redirect('/login')
+
+
 @app.route('/', methods=['GET'])
 def main():
     # collection 생성
@@ -121,12 +129,14 @@ def make_page():
             location = request.form["location"]
             category = request.form["category"]
             headcount = request.form["headcount"]
+            currentcount = 1
             address = request.form["address"]
             meetDetail = request.form["meetDetail"]
             tags = request.form["tags"]
             lat = request.form["lat"]
             lng = request.form["lng"]
             userid = session['userid']
+            done = False  # 모집중-(done: False), 모집완료-(done: True)
 
             tag_arr = tags.split('#')  # 태그들이 저장된 배열
 
@@ -138,11 +148,13 @@ def make_page():
                 "location": location,
                 "category": category,
                 "headcount": headcount,
+                "currentcount": currentcount,
                 "address": address,
                 "meetDetail": meetDetail,
                 "tags": tag_arr,
                 "lat": lat,
-                "lng": lng
+                "lng": lng,
+                "done": done
             }
 
             if meet_profile:  # form에서 넘어온 profile 값이 있다면
@@ -335,7 +347,6 @@ def write():
             collect = db.mongoBoard
 
             # form에서 가져온 데이터들
-            notice = request.form["notice"]
             title = request.form["title"]
             contents = request.form["contents"]
             userid = session['userid']
@@ -343,7 +354,6 @@ def write():
 
             # document 생성
             doc = {
-                "notice": notice,
                 "title": title,
                 "contents": contents,
                 "userid": userid,
@@ -353,7 +363,7 @@ def write():
             collect.insert_one(doc)
             return redirect(url_for('meet_page'))
         # GET일 경우
-        return render_template('write.html')
+        return render_template('makenotice.html')
     else:  # 로그인 안되어 있을 경우
         return redirect('/login')
 
