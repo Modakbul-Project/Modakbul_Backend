@@ -588,12 +588,12 @@
             <div class="detailTitle">
                 <button>X</button>
                 <div class="meetPic"><img src="" alt=""></div>
-                <h2>봄맞이 야외스터디 모집</h2>
+                <h2 id="card_title"></h2>
                 <span>Lv.23</span>
             </div>
             <div class="detailTags">
                 <ul id="bigTag">
-                    <li>서울시 강남구</li>
+                    <li id="card_tag">서울시 강남구</li>
                     <li>자유 주제</li>
                     <li>2~5명</li>
                 </ul>
@@ -607,8 +607,8 @@
                 본문 내용 lorem ipsum
             </div>
             <div class="detailFooter">
-                <div id="numPeople">현재 인원 수 <span>2</span><span>/</span><span>5</span></div>
-                <button onclick="location.href='#'">참여하기</button>
+                <div id="numPeople">현재 인원 수 <span>2</span><span>/</span><span id="card_memberMax"></span></div>
+                <button id="card_joinButton" value="" onclick="meeting_join(this.value)">참여하기</button>
             </div>
         </div>
     </div>
@@ -626,7 +626,7 @@
 </body>
 <script>
     // 모임 목록 조회
-    function meeting_read() {
+    function meeting_read(card_num) {
         $.ajax({
             type: "GET",
             url: "/meeting_read",
@@ -637,14 +637,18 @@
                 for (let i = 0; i < response.length; i++) {
                     if (response[i].leader_id != user_id) {
                         document.getElementById('card_list').innerHTML += "<li class='card'>" +
-                            +"태그 : " + response[i].tag_id + "<br>" + "인원 수 : " + response[i].members_id +
+                            "태그 : " + response[i].tag_id + "<br>" + "인원 수 : " + response[i].members_id +
                             "<br>" + "분류 : " + response[i].study_id + "<br>" + "모임장 : " +
-                            response[i].leader_name + "<br>" + "<button id='" + "card" + i + "'>" + "상세보기" +
-                            "</button>" + "</li>";
+                            response[i].leader_name + "<br>" + "스터디 제목 : " + response[i].study_title +
+                            "<br>" + "<button value="+ i + " class='" + "card_button" + "' + >" +
+                            "상세보기" + "</button>" + "</li>";
 
-                        $("#card1").click(function () {
-                            alert("클릭인식됨");
+                        $(".card_button").click(function () {
                             $(".detailsBg").show();
+                            document.getElementById('card_title').innerHTML = response[this.value].study_title;
+                            document.getElementById('card_tag').innerHTML = response[this.value].tag_id;
+                            document.getElementById('card_memberMax').innerHTML = response[this.value].members_id;
+                            document.getElementById('card_joinButton').value = response[this.value].study_title;
                             //this통해 검색, 받아와서 보여주기, 주소창에 정보 띄울 것!(주소로 카드 접근 가능하도록)
                         })
                     }
@@ -657,6 +661,22 @@
     }
 
     window.onload = meeting_read;
+
+    function meeting_join(title) {
+        alert(title);
+        let user_id = $("#user_id1").html();
+        alert(user_id)
+        $.ajax({
+            type: "GET",
+            url: "/meeting_join",
+            data: {card_title : title, user_id : user_id},
+            success: function (response) {
+                console.log(response);
+
+            }
+        })
+
+    }
 
 </script>
 </html>

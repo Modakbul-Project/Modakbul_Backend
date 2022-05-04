@@ -14,7 +14,7 @@ app.config['GOOGLE_OAUTH2_CLIENT_SECRETS_FILE'] = './static/client_secret_.json'
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=60) # 로그인 지속시간을 정합니다. 60분(1시간)
 
 oauth = OAuth(app)
-with open('./static/client_secret.json') as f:
+with open('/Users/imin-u/Downloads/Modakbul_Backend-minwoo 2/Modakbul_Backend-minwoo/static/client_secret.json') as f:
     json_data=json.load(f)
 
 
@@ -254,7 +254,7 @@ def profile_edit():
     else:
         return redirect('/login')
 
-@app.route('/meet')
+@app.route('/meetpage')
 def meet_page():
     if 'userid' in session:  # 로그인 여부 확인
         # collection 생성
@@ -375,7 +375,7 @@ def google_auth():
     print(" Google User ", user)
     return redirect('/')
 
-# POST API(모임 목록 조회)
+# GET API(모임 목록 조회)
 @app.route('/meeting_read', methods=['GET'])
 def meeting_read():
     read = db.meetings.find()
@@ -383,6 +383,23 @@ def meeting_read():
     for result in read:
         meetList.append(result)
     return jsonify(meetList)
+
+# POST API(참여 요청)
+@app.route('/meeting_join', methods=['GET', 'POST'])
+def meeting_join():    # value는 card_title(제목)이 넘어옴
+    title = request.args.get('card_title')
+    user_id = request.args.get('user_id')
+    print(user_id + " 유저로부터 '" + title + "' 스터디 참여 요청 받음")
+    meetings = db.meetings.find()
+
+    # print(meetings[0]['study_title'])
+
+    for result in meetings:
+        if(result['study_title'] == title):
+            # print("찾았다! "+result['tag_id'])
+            pass
+
+    return "success"
 
 # POST API(모임 등록)
 @app.route('/register', methods=['POST'])
