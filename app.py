@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, url_for, json, session, flash
+from flask import Flask, render_template, redirect, request, url_for, json, session, flash, jsonify
 from pymongo import MongoClient
 from bson.json_util import ObjectId
 from authlib.integrations.flask_client import OAuth
@@ -10,6 +10,7 @@ now = datetime.now()
 app = Flask(__name__)
 app.secret_key = 'secretkey'  # secret_key는 서버상에 동작하는 어플리케이션 구분하기 위해 사용하고 복잡하게 만들어야 합니다.
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=60)  # 로그인 지속시간을 정합니다. 60분(1시간)
+app.config['JSON_AS_ASCII'] = False
 
 oauth = OAuth(app)
 with open('./static/client_secret.json') as f:
@@ -30,14 +31,6 @@ app.json_encoder = MyEncoder
 conn = MongoClient('127.0.0.1')
 # db 생성
 db = conn.Test
-
-
-@app.route('/mymeets')
-def my_meets():
-    if 'userid' in session:  # 로그인 여부 확인
-        return render_template('mypage.html', mypage=1)
-    else:
-        return redirect('/login')
 
 
 @app.route('/', methods=['GET'])
@@ -109,7 +102,26 @@ def find_id():
 @app.route('/mypage')
 def my_page():
     if 'userid' in session:  # 로그인 여부 확인
-        return render_template('mypage.html')
+        # collection 생성
+        collect = db.mongoUser
+        meeting_collect = db.mongoMeeting
+
+        userid = session['userid']
+        # 회원정보가 db에 있는지 검색
+        result = list(collect.find({'userid': userid}))
+        meet = result[0]['meeting']
+
+        meetList = list()
+        meetInfo = list()
+
+        for i in meet:
+            if i != "":
+                meetList.append(i)
+
+        for i in meetList:
+            meetInfo.append(meeting_collect.find({'meet_name': i}))
+
+        return render_template('test.html', meetInfo=meetInfo)
     else:
         return redirect('/login')
 
@@ -135,7 +147,8 @@ def make_page():
             tags = request.form["tags"]
             lat = request.form["lat"]
             lng = request.form["lng"]
-            userid = session['userid']
+            leader_id = session['userid']
+            leader_name = session['username']
             done = False  # 모집중-(done: False), 모집완료-(done: True)
 
             tag_arr = tags.split('#')  # 태그들이 저장된 배열
@@ -143,7 +156,8 @@ def make_page():
             # document 생성
             doc = {
                 "meet_name": meet_name,
-                "leader_id": userid,
+                "leader_id": leader_id,
+                "leader_name": leader_name,
                 "meet_title": meet_title,
                 "location": location,
                 "category": category,
@@ -182,6 +196,7 @@ def profile_edit():
         if request.method == "POST":
             # collection 생성
             collect = db.mongoUser
+            meeting_collect = db.mongoMeeting
 
             # form에서 값이 넘어오면 변수에 값 할당
             # 넘어오지 않는다면 null값 할당
@@ -204,6 +219,7 @@ def profile_edit():
 
             # 변경된 값 db에 반영
             collect.update_one({'userid': session['userid']}, {'$set': doc})
+            meeting_collect.update_one({'leader_id': session['userid']}, {'$set': {"leader_name": username}})
             redirect(url_for('my_page'))
 
         # GET일 경우
@@ -368,15 +384,19 @@ def write():
         return redirect('/login')
 
 
-@app.route('/meet')
-def meet_page():
+@app.route('/meet/<id>')
+def meet_page(id=None):
     if 'userid' in session:  # 로그인 여부 확인
         # collection 생성
         collect = db.mongoBoard
+        meeting_collect = db.mongoMeeting
+
+        # 모임 정보
+        meetInfo = meeting_collect.find({'_id': ObjectId(id)})
 
         # select 쿼리값 results에 저장
         results = collect.find()
-        return render_template('meetpage.html', data=results)
+        return render_template('meetpage.html', data=results, meetInfo=meetInfo)
     else:
         return redirect('/login')
 
@@ -446,6 +466,15 @@ def edit(id=None):
 
     else:  # 로그인 안되어 있을 경우
         return redirect('/login')
+
+
+# POST API(모임 등록)
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    db.meetings.insert_one(data)
+
+    return jsonify(result = "success", result2 = data)
 
 
 if __name__ == '__main__':
