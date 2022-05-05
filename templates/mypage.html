@@ -230,7 +230,7 @@
                 </ul>
                 </div>
 
-                <a href="/logout" class="logout">로그아웃</a>
+<a href="/logout" class="logout">로그아웃</a>
                 </div>
            <div class="contents conatainer">
                 <div class="category">
@@ -259,32 +259,24 @@
                </script>
                <div class="cardContainer">
                <div class="cards makeSelf">
-                   <ul>
-                   <li class="card">
-                       카드정보
-                   </li>
-                    <li class="card">
-                       카드정보
-                   </li>
-                    <li class="card">
-                       카드정보
-                   </li>
-                    <li class="card">
-                       카드정보
-                   </li>
-                   <li class="card">
-                       카드정보
-                   </li>
-                    <li class="card">
-                       카드정보
-                   </li>
-                    <li class="card">
-                       카드정보
-                   </li>
-                    <li class="card">
-                       카드정보
-                   </li>
-               </ul>
+                    <ul id="mycard">
+                        <!--내 모임 이 부분에 <li>로 모임 카드들 추가됨-->
+                        {% for i in  meetInfo %}
+                        {% if i[0].leader_id == session['userid'] %}
+                            <li class='card'>모임명: <a href="/meet/{{i[0]._id}}">{{i[0].meet_name}}</a> <br>
+                            인원 수 : {{i[0].currentcount}}명 <br>
+                            분류 : {{i[0].category}} <br>
+                            모임장 : {{i[0].leader_name}} <br>
+                            지역 : {{i[0].location}} <br>
+                            태그 : {% for j in i[0].tags %}
+                                         {% if j != ""%}
+                                           #{{j}}
+                                         {% endif %}
+                                      {% endfor %}
+                            </li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
                </div>
                    <div class="scrollBt-left">왼쪽버튼</div>
                    <div class="scrollBt-right">오른쪽버튼</div>
@@ -298,38 +290,73 @@
                         <option value="모집완료">모집 완료</option>
                     </select>
                </form>
-                  </div>
+                </div>
             <div class="cardContainer">
                <div class="cards participate">
-                   <ul>
-                   <li class="card">
-                       카드정보
-                   </li>
-                    <li class="card">
-                       카드정보
-                   </li>
-                    <li class="card">
-                       카드정보
-                   </li>
-                    <li class="card">
-                       카드정보
-                   </li>
-                   <li class="card">
-                       카드정보
-                   </li>
-                    <li class="card">
-                       카드정보
-                   </li>
-                    <li class="card">
-                       카드정보
-                   </li>
-                    <li class="card">
-                       카드정보
-                   </li>
-               </ul>
+                  <ul id="joincard">
+                        <!--참여 중 모임 이 부분에 <li>로 모임 카드들 추가됨-->
+                      {% for i in  meetInfo %}
+                        {% if i[0].leader_id != session['userid'] %}
+                            <li class='card'>모임명: <a href="/meet/{{i[0]._id}}">{{i[0].meet_name}}</a> <br>
+                            인원 수 : {{i[0].currentcount}}명 <br>
+                            분류 : {{i[0].category}} <br>
+                            모임장 : {{i[0].leader_name}} <br>
+                            지역 : {{i[0].location}} <br>
+                            태그 : {% for j in i[0].tags %}
+                                  {% if j != ""%}
+                                    #{{j}}
+                                  {% endif %}
+                                  {% endfor %}
+                            </li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
                </div>
                    <div class="scrollBt-left">왼쪽버튼</div>
                    <div class="scrollBt-right">오른쪽버튼</div>
+            </div>
+                           <!--팝업 창-->
+            <div class="popup_layer" id="popup_layer" style="display: none;">
+                <div class="popup_box">
+                    <div style="height: 10px; width: 375px; float: top;">
+                        <a href="javascript:closePop();"><img src="/static/img/ic_close.svg"
+                                                              class="m_header-banner-close" width="30px" height="30px"></a>
+                    </div>
+                    <!--팝업 컨텐츠 영역-->
+                    <div class="popup_cont">
+                        <h2> 모임 만들기</h2>
+
+                        <h4> 내 id : <span id="user_id1">{{ session['userid'] }}</span></h4>
+
+                        <p>
+                            분류<br>
+                            주제 분류<select type="text" id="study_id1">
+                            <option>=== 선택 ===</option>
+                            <option value="study">스터디</option>
+                            <option value="sport">스포츠 모임</option>
+                            <option value="friends">친목 모임</option>
+                        </select><br>
+                            인원 수<select type="text" id="members_id1">
+                            <option>=== 선택 ===</option>
+                            <option value=3>3명</option>
+                            <option value=4>4명</option>
+                            <option value=5>5명</option>
+                        </select>
+                        </p>
+                        <p>
+                            태그
+                        </p>
+                        <textarea id="tag_id1" placeholder="태그 입력">
+
+                        </textarea>
+                        <input type="button" id="register" value="모임 등록">
+
+                    </div>
+                    <!--팝업 버튼 영역-->
+                    <div class="popup_btn" style="float: bottom; margin-top: 200px;">
+                        <a href="javascript:closePop();">닫기</a>
+                    </div>
+                </div>
             </div>
                 <script>
                //스크롤 버튼
@@ -338,6 +365,53 @@
                 $(".scrollBt-left").click(function(){
                     $(this).siblings(".cards").animate({scrollLeft:"-=500"},800);
                 });
+
+                //팝업 띄우기
+                function openPop() {
+                    document.getElementById("popup_layer").style.display = "block";
+
+                }
+
+                //팝업 닫기
+                function closePop() {
+                    document.getElementById("popup_layer").style.display = "none";
+                }
+
+
+
+
+                // 모임 등록 요청
+                $('#register').click(function () {
+                    let study_id = $("#study_id1").val();
+                    let members_id = $("#members_id1").val();
+                    let tag_id = $("#tag_id1").val();
+                    let user_id = $("#user_id1").html();
+                    let user_name = $("#user_name1").html();
+                    alert(user_name);
+                    let postdata = {
+                        "study_id": study_id,
+                        "members_id": members_id,
+                        "tag_id": tag_id,
+                        "leader_id": user_id,
+                        "leader_name": user_name
+                    }
+                    $.ajax({
+                        type: 'POST',
+                        url: '{{url_for("register")}}',
+                        data: JSON.stringify(postdata),
+                        dataType: 'JSON',
+                        contentType: "application/json",
+                        success: function (data) {
+                            alert('성공! 데이터 값:' + data.result2["study_id"] + " " + data.result2["members_id"]
+                                + " " + data.result2["tag_id"])
+                        },
+                        error: function (request, status, error) {
+                            alert('ajax 통신 실패')
+                            alert(error);
+                        }
+                    })
+                })
+
                </script>
             </div>
             </div>
