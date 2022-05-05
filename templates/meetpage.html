@@ -81,6 +81,12 @@
         border-radius: 50%;
         overflow: hidden;
     }
+    img {
+        width:50px;
+        height: 50px;
+        margin-right: 10px;
+        border-radius: 50%;
+    }
 
     .meetTitleNav h1{
         display: inline-block;
@@ -292,8 +298,8 @@
        <div class="contents conatainer">
            <div class="meetTitleNav">
               <div class="meetwrap">
-              <div class="meetPic">a</div>
-               <h1 class="meetTitle">모임명</h1>
+              <div class="meetPic"><img src="../static/meet_profile/{{meetInfo[0].meet_profile}}"></div>
+               <h1 class="meetTitle">{{meetInfo[0].meet_name}}</h1>
                </div>
                <a class="meetOption" href="/meetadmin">모임관리</a>
                <a class="meetOption" href="/write">글쓰기</a>
@@ -321,7 +327,7 @@
                    <div id="board">
                    </div>
                    <div id="calender">
-                       calender
+                        calendar
                    </div>
                    <div id="toggleBt">
                        toggle
@@ -347,11 +353,9 @@
                    <div class="notice">
                        <ul>
                            {% for i in data %}
-                                {% if i.notice == 'y' %}
                                 <li>
                                     <a href="/notice/{{i._id}}">{{i.title}}</a>
                                 </li>
-                                {% endif %}
                            {% endfor %}
                    </ul>
                    </div>
