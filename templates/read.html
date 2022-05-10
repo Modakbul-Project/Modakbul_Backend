@@ -43,9 +43,9 @@
                 </tbody>
              </table>
           </div>
-            <a href="/edit/{{data._id}}" role="button" class="btn btn-success">수정하기</a>
-            <a href="/delete/{{data._id}}" role="button" class="btn btn-danger">삭제하기</a>
-            <a href="/meet" role="button" class="btn btn-secondary">뒤로가기</a>
+            <a href="/edit/{{meetInfo[0]._id}}/{{data._id}}" role="button" class="btn btn-success">수정하기</a>
+            <a href="/delete/{{meetInfo[0]._id}}/{{data._id}}" role="button" class="btn btn-danger">삭제하기</a>
+            <a href="/meet/{{meetInfo[0]._id}}" role="button" class="btn btn-secondary">뒤로가기</a>
     </div>
 </body>
 </html>
