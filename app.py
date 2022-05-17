@@ -33,33 +33,6 @@ conn = MongoClient('127.0.0.1')
 db = conn.Test
 
 
-@app.route('/test', methods=['GET'])
-def test():
-    if 'userid' in session:  # 로그인 여부 확인
-        # collection 생성
-        collect = db.mongoUser
-        meeting_collect = db.mongoMeeting
-
-        userid = session['userid']
-        # 회원정보가 db에 있는지 검색
-        result = list(collect.find({'userid': userid}))
-        meet = result[0]['meeting']
-
-        meetList = list()
-        meetInfo = list()
-
-        for i in meet:
-            if i != "":
-                meetList.append(i)
-
-        for i in meetList:
-            meetInfo.append(meeting_collect.find({'meet_name': i}))
-
-        return render_template('test.html', meetInfo=meetInfo, mypage=0)
-    else:
-        return redirect('/login')
-
-
 # GET API(모임 목록 조회)
 @app.route('/meeting_read', methods=['GET'])
 def meeting_read():
