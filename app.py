@@ -10,7 +10,7 @@ now = datetime.now()
 app = Flask(__name__)
 app.secret_key = 'secretkey'  # secret_key는 서버상에 동작하는 어플리케이션 구분하기 위해 사용하고 복잡하게 만들어야 합니다.
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=60)  # 로그인 지속시간을 정합니다. 60분(1시간)
-app.config['JSON_AS_ASCII'] = False
+app.config['JSON_AS_ASCII'] = False # JSON 한글 인코딩
 
 oauth = OAuth(app)
 with open('./static/client_secret.json') as f:
@@ -33,15 +33,80 @@ conn = MongoClient('127.0.0.1')
 db = conn.Test
 
 
+@app.route('/test', methods=['GET'])
+def test():
+    if 'userid' in session:  # 로그인 여부 확인
+        # collection 생성
+        collect = db.mongoUser
+        meeting_collect = db.mongoMeeting
+
+        userid = session['userid']
+        # 회원정보가 db에 있는지 검색
+        result = list(collect.find({'userid': userid}))
+        meet = result[0]['meeting']
+
+        meetList = list()
+        meetInfo = list()
+
+        for i in meet:
+            if i != "":
+                meetList.append(i)
+
+        for i in meetList:
+            meetInfo.append(meeting_collect.find({'meet_name': i}))
+
+        return render_template('test.html', meetInfo=meetInfo, mypage=0)
+    else:
+        return redirect('/login')
+
+
+# GET API(모임 목록 조회)
+@app.route('/meeting_read', methods=['GET'])
+def meeting_read():
+    read = db.meetings.find()
+    meetList = list()
+    for result in read:
+        meetList.append(result)
+    return jsonify(meetList)
+
+
+@app.route('/mymeets')
+def my_meets():
+    if 'userid' in session:  # 로그인 여부 확인
+        return render_template('mypage.html', mypage=1)
+    else:
+        return redirect('/login')
+
+
 @app.route('/', methods=['GET'])
 def main():
     # collection 생성
-    collect = db.mongoMeeting
+    collect = db.mongoUser
+    meeting_collect = db.mongoMeeting
+    if 'userid' in session:  # 로그인 여부 확인
+        userid = session['userid']
+        # 회원정보가 db에 있는지 검색
+        result = list(collect.find({'userid': userid}))
+        meet = result[0]['meeting']
 
-    # select 쿼리값 results에 저장
-    results = collect.find()
+        meetList = list() # 로그인된 유저가 가입한 모임명들의 배열
 
-    return render_template('main.html', data=results)
+        for i in meet:
+            if i != "":
+                meetList.append(i)
+
+        # 유저가 가입한 모임을 제외한 모든 모임들의 정보
+        meetInfo = list(meeting_collect.find({'meet_name': {'$nin': meetList}}))
+        # select 쿼리값 results에 저장 (맵의 마커에 사용)
+        results = meeting_collect.find()
+
+        return render_template('main.html', data=results, meetInfo=meetInfo)
+    else:
+        meetInfo = list(meeting_collect.find())
+        # select 쿼리값 results에 저장 (맵의 마커에 사용)
+        results = meeting_collect.find()
+
+        return render_template('main.html', data=results, meetInfo=meetInfo)
 
 
 @app.route('/find_pw', methods=['GET', 'POST'])
@@ -121,7 +186,7 @@ def my_page():
         for i in meetList:
             meetInfo.append(meeting_collect.find({'meet_name': i}))
 
-        return render_template('test.html', meetInfo=meetInfo)
+        return render_template('mypage.html', meetInfo=meetInfo, mypage=0)
     else:
         return redirect('/login')
 
@@ -313,7 +378,7 @@ def signup():
 
         # document 생성
         doc = {
-            "profile": "./static/profile/user.png",
+            "profile": "user.png",
             "username": username,
             "userid": userid,
             "password": password,
@@ -323,7 +388,6 @@ def signup():
             "phone": phone,
             "introduce": "",
             "meeting": "",
-            "role": ""
         }
         # userid가 db에 있는지 검색
         result = list(collect.find({'userid': userid}))
@@ -340,48 +404,6 @@ def signup():
             return redirect(url_for('signup'))
     else:  # 메소드가 GET일 경우
         return render_template('signup.html')
-
-
-@app.route('/notice/<id>')  # 게시판 or 공지사항에 작성된 글 읽기 페이지
-def notice(id=None):
-    if 'userid' in session:  # 로그인 여부 확인
-        # collection 생성
-        collect = db.mongoBoard
-        # db에서 id와 일치하는 글 검색
-        result = list(collect.find({'_id': ObjectId(id)}))
-        result = result[0]
-        return render_template('read.html', data=result)
-    else:  # 로그인 안되어 있을 경우
-        return redirect('/login')
-
-
-@app.route('/write', methods=['GET', 'POST'])  # 게시판 or 공지사항 글쓰기 페이지
-def write():
-    if 'userid' in session:  # 로그인 여부 확인
-        if request.method == "POST":
-            # collection 생성
-            collect = db.mongoBoard
-
-            # form에서 가져온 데이터들
-            title = request.form["title"]
-            contents = request.form["contents"]
-            userid = session['userid']
-            username = session['username']
-
-            # document 생성
-            doc = {
-                "title": title,
-                "contents": contents,
-                "userid": userid,
-                "username": username,
-                "create_time": str(now.date())
-            }
-            collect.insert_one(doc)
-            return redirect(url_for('meet_page'))
-        # GET일 경우
-        return render_template('makenotice.html')
-    else:  # 로그인 안되어 있을 경우
-        return redirect('/login')
 
 
 @app.route('/meet/<id>')
@@ -409,33 +431,90 @@ def meet_admin():
         return redirect('/login')
 
 
-@app.route('/delete/<id>')
-def delete(id=None):
+@app.route('/write/<id>', methods=['GET', 'POST'])  # 게시판 or 공지사항 글쓰기 페이지
+def write(id=None):
     if 'userid' in session:  # 로그인 여부 확인
         # collection 생성
-        collect = db.mongoBoard
-        # db에서 id와 일치하는 글 검색
-        result = list(collect.find({'_id': ObjectId(id)}))
-        if result[0]['userid'] == session['userid']:  # 작성자와 로그인한 사용자가 일치하면
-            collect.delete_one({'_id': ObjectId(id)})  # 해당 게시글 삭제
-            return redirect(url_for('meet_page'))
-        else:  # 작성자와 로그인한 사용자가 일치하지 않으면
-            msg = "삭제 권한이 없습니다."
-            flash(msg)  # 리턴할 때 같이 넘겨줄 메시지
-            return redirect('/notice/' + id)
+        meeting_collect = db.mongoMeeting
+        # 모임 정보
+        meetInfo = meeting_collect.find({'_id': ObjectId(id)})
+        if request.method == "POST":
+            # collection 생성
+            collect = db.mongoBoard
+
+            # form에서 가져온 데이터들
+            title = request.form["title"]
+            contents = request.form["contents"]
+            userid = session['userid']
+            username = session['username']
+            meet_name = meetInfo[0]['meet_name']
+
+            # document 생성
+            doc = {
+                "title": title,
+                "contents": contents,
+                "userid": userid,
+                "username": username,
+                "create_time": str(now.date()),
+                "meet_name": meet_name
+            }
+            collect.insert_one(doc)
+            return redirect('/meet/'+str(meetInfo[0]['_id']))
+        # GET일 경우
+        return render_template('makenotice.html', meetInfo=meetInfo)
     else:  # 로그인 안되어 있을 경우
         return redirect('/login')
 
 
-@app.route('/edit/<id>', methods=['GET', 'POST'])  # 게시판 or 공지사항에 작성된 글 읽기 페이지
-def edit(id=None):
+@app.route('/notice/<meet_id>/<id>')  # 게시판 or 공지사항에 작성된 글 읽기 페이지
+def notice(meet_id=None, id=None):
+    if 'userid' in session:  # 로그인 여부 확인
+        # collection 생성
+        collect = db.mongoBoard
+        meeting_collect = db.mongoMeeting
+
+        # 모임 정보
+        meetInfo = meeting_collect.find({'_id': ObjectId(meet_id)})
+
+        # db에서 id와 일치하는 글 검색
+        result = list(collect.find({'_id': ObjectId(id)}))
+        result = result[0]
+        return render_template('read.html', data=result, meetInfo=meetInfo)
+    else:  # 로그인 안되어 있을 경우
+        return redirect('/login')
+
+
+@app.route('/delete/<meet_id>/<id>')
+def delete(meet_id=None, id=None):
     if 'userid' in session:  # 로그인 여부 확인
         # collection 생성
         collect = db.mongoBoard
 
+        # db에서 id와 일치하는 글 검색
+        result = list(collect.find({'_id': ObjectId(id)}))
+        if result[0]['userid'] == session['userid']:  # 작성자와 로그인한 사용자가 일치하면
+            collect.delete_one({'_id': ObjectId(id)})  # 해당 게시글 삭제
+            return redirect('/meet/' + meet_id)
+        else:  # 작성자와 로그인한 사용자가 일치하지 않으면
+            msg = "삭제 권한이 없습니다."
+            flash(msg)  # 리턴할 때 같이 넘겨줄 메시지
+            return redirect('/notice/' + meet_id + '/' + id)
+    else:  # 로그인 안되어 있을 경우
+        return redirect('/login')
+
+
+@app.route('/edit/<meet_id>/<id>', methods=['GET', 'POST'])  # 게시판 or 공지사항에 작성된 글 읽기 페이지
+def edit(meet_id=None, id=None):
+    if 'userid' in session:  # 로그인 여부 확인
+        # collection 생성
+        collect = db.mongoBoard
+        meeting_collect = db.mongoMeeting
+
+        # 모임 정보
+        meetInfo = meeting_collect.find({'_id': ObjectId(meet_id)})
+
         if request.method == "POST":
             # form에서 가져온 데이터들
-            notice = request.form["notice"]
             title = request.form["title"]
             contents = request.form["contents"]
             userid = session['userid']
@@ -443,7 +522,6 @@ def edit(id=None):
 
             # document 생성
             doc = {
-                "notice": notice,
                 "title": title,
                 "contents": contents,
                 "userid": userid,
@@ -451,18 +529,18 @@ def edit(id=None):
                 "create_time": str(now.date())
             }
             collect.update_one({'_id': ObjectId(id)}, {'$set': doc})
-            return redirect(url_for('meet_page'))
+            return redirect('/meet/' + meet_id)
 
         # GET일 경우
         # db에서 id와 일치하는 글 검색
         result = list(collect.find({'_id': ObjectId(id)}))
         if result[0]['userid'] == session['userid']:  # 작성자와 로그인한 사용자가 일치하면
             result = result[0]
-            return render_template('edit.html', data=result)
+            return render_template('edit.html', data=result, meetInfo=meetInfo)
         else:  # 작성자와 로그인한 사용자가 일치하지 않으면
             msg = "수정 권한이 없습니다."
             flash(msg)  # 리턴할 때 같이 넘겨줄 메시지
-            return redirect('/notice/' + id)
+            return redirect('/notice/' + meet_id + '/' + id)
 
     else:  # 로그인 안되어 있을 경우
         return redirect('/login')
