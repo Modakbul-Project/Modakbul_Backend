@@ -33,6 +33,16 @@ conn = MongoClient('127.0.0.1')
 db = conn.Test
 
 
+# GET API(모임 목록 조회)
+@app.route('/meeting_read', methods=['GET'])
+def meeting_read():
+    read = db.meetings.find()
+    meetList = list()
+    for result in read:
+        meetList.append(result)
+    return jsonify(meetList)
+
+
 @app.route('/mymeets')
 def my_meets():
     if 'userid' in session:  # 로그인 여부 확인
@@ -44,12 +54,32 @@ def my_meets():
 @app.route('/', methods=['GET'])
 def main():
     # collection 생성
-    collect = db.mongoMeeting
+    collect = db.mongoUser
+    meeting_collect = db.mongoMeeting
+    if 'userid' in session:  # 로그인 여부 확인
+        userid = session['userid']
+        # 회원정보가 db에 있는지 검색
+        result = list(collect.find({'userid': userid}))
+        meet = result[0]['meeting']
 
-    # select 쿼리값 results에 저장
-    results = collect.find()
+        meetList = list() # 로그인된 유저가 가입한 모임명들의 배열
 
-    return render_template('main.html', data=results)
+        for i in meet:
+            if i != "":
+                meetList.append(i)
+
+        # 유저가 가입한 모임을 제외한 모든 모임들의 정보
+        meetInfo = list(meeting_collect.find({'meet_name': {'$nin': meetList}}))
+        # select 쿼리값 results에 저장 (맵의 마커에 사용)
+        results = meeting_collect.find()
+
+        return render_template('main.html', data=results, meetInfo=meetInfo)
+    else:
+        meetInfo = list(meeting_collect.find())
+        # select 쿼리값 results에 저장 (맵의 마커에 사용)
+        results = meeting_collect.find()
+
+        return render_template('main.html', data=results, meetInfo=meetInfo)
 
 
 @app.route('/find_pw', methods=['GET', 'POST'])
@@ -129,7 +159,7 @@ def my_page():
         for i in meetList:
             meetInfo.append(meeting_collect.find({'meet_name': i}))
 
-        return render_template('mypage.html', meetInfo=meetInfo)
+        return render_template('mypage.html', meetInfo=meetInfo, mypage=0)
     else:
         return redirect('/login')
 
