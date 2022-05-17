@@ -18,9 +18,22 @@
                <div class="cards makeSelf">
                    <ul>
                    <li class="card">
-                       <a href="/meet">어쩌구모임</a>
-                   </li>
-                       <!-- li 반복문 -->
+                       <!--내 모임 이 부분에 <li>로 모임 카드들 추가됨-->
+                        {% for i in  meetInfo %}
+                        {% if i[0].leader_id == session['userid'] %}
+                            <li class='card'>모임명: <a href="/meet/{{i[0]._id}}">{{i[0].meet_name}}</a> <br>
+                            인원 수 : {{i[0].currentcount}}명 <br>
+                            분류 : {{i[0].category}} <br>
+                            모임장 : {{i[0].leader_name}} <br>
+                            지역 : {{i[0].location}} <br>
+                            태그 : {% for j in i[0].tags %}
+                                         {% if j != ""%}
+                                           #{{j}}
+                                         {% endif %}
+                                      {% endfor %}
+                            </li>
+                        {% endif %}
+                        {% endfor %}
                </ul>
                </div>
                    <div class="scrollBt-left">왼쪽버튼</div>
@@ -39,10 +52,22 @@
             <div class="cardContainer">
                <div class="cards participate">
                    <ul>
-                   <li class="card">
-                       카드정보
-                   </li>
-                    <!-- li 반복문 -->
+                     <!--참여 중 모임 이 부분에 <li>로 모임 카드들 추가됨-->
+                      {% for i in  meetInfo %}
+                        {% if i[0].leader_id != session['userid'] %}
+                            <li class='card'>모임명: <a href="/meet/{{i[0]._id}}">{{i[0].meet_name}}</a> <br>
+                            인원 수 : {{i[0].currentcount}}명 <br>
+                            분류 : {{i[0].category}} <br>
+                            모임장 : {{i[0].leader_name}} <br>
+                            지역 : {{i[0].location}} <br>
+                            태그 : {% for j in i[0].tags %}
+                                  {% if j != ""%}
+                                    #{{j}}
+                                  {% endif %}
+                                  {% endfor %}
+                            </li>
+                        {% endif %}
+                        {% endfor %}
                </ul>
                </div>
                    <div class="scrollBt-left">왼쪽버튼</div>
