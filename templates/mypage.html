@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %} : mypage {% endblock %}
+{% block head %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="{{ url_for('static', filename='jquery.mousewheel.js') }}"></script>
+    <link rel = "stylesheet" href="static/css/mypage.css">
+    {{ super() }}
+{% endblock %}
+{% block body %}
+         <div class="myPage container">
+            {%include 'mypage_sidebar.html' %}
+                {%if mypage == 0 %}
+                        {%include 'mypage_cards_cnt.html' %}
+                {%elif mypage == 1 %}
+                        {%include 'mypage_mymeet_cnt.html' %}
+                {%endif%}
+         </div>
+<!--        {%include 'profileedit.html' %}-->
+<!--        {%include 'makemeet.html' %}-->
+        <script type="text/javascript" src="{{url_for('static',filename='js/cardscroll.js')}}"></script>
+        {% endblock %}
+        {%block footer%}
+        <!--팀원이나 간단한 정보들적기, 높이 낮아지면 사라짐-->
+        {%endblock%}

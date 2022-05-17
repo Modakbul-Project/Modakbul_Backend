@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <meta charset="UTF-8">
+    <link rel = "stylesheet" href="static/css/popupBase.css">
+</head>
+<body>
+    
+    <div class="detailsBg">
+        <div class="detailsWrap">
+            <div class="detailTitle">
+               <button>X</button>
+                <div class="meetPic"><img src="" alt=""></div>
+                <h2>봄맞이 야외스터디 모집</h2>
+                <span>Lv.23</span>
+            </div>
+            <div class="detailTags">
+                <ul id="bigTag">
+                    <li>서울시 강남구</li>
+                    <li>자유 주제</li>
+                    <li>2~5명</li>
+                </ul>
+                <ul id="smallTag">
+                    <li>느긋한</li>
+                    <li>주제자유</li>
+                </ul>
+            </div>
+            <div class="detailContents">
+                <img src="{{ url_for('static', filename='map.png') }}"/>
+            </div>
+            <div class="detailFooter">
+                <div id="numPeople">현재 인원 수 <span>2</span><span>/</span><span>5</span></div>
+                <button onclick="location.href='#'">참여하기</button>
+            </div>
+        </div>
+    </div>
+    <script>
+            $(".detailsBg").hide();
+
+        $(".detailTitle button").click(function(){
+            $(".detailsBg").hide();
+        })
+    </script>
+</body>
+</html>
