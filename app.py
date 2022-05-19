@@ -10,7 +10,7 @@ now = datetime.now()
 app = Flask(__name__)
 app.secret_key = 'secretkey'  # secret_key는 서버상에 동작하는 어플리케이션 구분하기 위해 사용하고 복잡하게 만들어야 합니다.
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=60)  # 로그인 지속시간을 정합니다. 60분(1시간)
-app.config['JSON_AS_ASCII'] = False # JSON 한글 인코딩
+app.config['JSON_AS_ASCII'] = False  # JSON 한글 인코딩
 
 oauth = OAuth(app)
 with open('./static/client_secret.json') as f:
@@ -31,6 +31,58 @@ app.json_encoder = MyEncoder
 conn = MongoClient('127.0.0.1')
 # db 생성
 db = conn.Test
+
+
+@app.route('/test2')
+def test2():
+    if 'userid' in session:  # 로그인 여부 확인
+        # collection 생성
+        collect = db.mongoBoard
+        meeting_collect = db.mongoMeeting
+
+        # 모임 정보
+        meetInfo = meeting_collect.find({'_id': ObjectId("626e170d0bb8876b1d54d22c")})
+
+        # select 쿼리값 results에 저장
+        results = collect.find()
+        return render_template('test2.html', admin=0, data=results, meetInfo=meetInfo)
+    else:
+        return redirect('/login')
+
+
+@app.route('/test3/<id>')
+def test3(id=None):
+    if 'userid' in session:  # 로그인 여부 확인
+        # collection 생성
+        collect = db.mongoBoard
+        meeting_collect = db.mongoMeeting
+
+        # 모임 정보
+        meetInfo = meeting_collect.find({'_id': ObjectId(id)})
+
+        # select 쿼리값 results에 저장
+        results = collect.find()
+
+        return render_template('test3.html', data=results, meetInfo=meetInfo)
+    else:
+        return redirect('/login')
+
+
+@app.route('/test/<id>')
+def test(id=None):
+    if 'userid' in session:  # 로그인 여부 확인
+        # collection 생성
+        collect = db.mongoBoard
+        meeting_collect = db.mongoMeeting
+
+        # 모임 정보
+        meetInfo = meeting_collect.find({'_id': ObjectId(id)})
+
+        # select 쿼리값 results에 저장
+        results = collect.find()
+        return render_template('test.html', admin=0, data=results, meetInfo=meetInfo)
+    else:
+        return redirect('/login')
 
 
 # GET API(모임 목록 조회)
@@ -62,7 +114,7 @@ def main():
         result = list(collect.find({'userid': userid}))
         meet = result[0]['meeting']
 
-        meetList = list() # 로그인된 유저가 가입한 모임명들의 배열
+        meetList = list()  # 로그인된 유저가 가입한 모임명들의 배열
 
         for i in meet:
             if i != "":
@@ -211,10 +263,10 @@ def make_page():
 
             if meet_profile:  # form에서 넘어온 profile 값이 있다면
                 f.save(
-                    './static/meet_profile/' + secure_filename(meet_profile))  # 모임 프로필 이미지 파일 저장 (경로: static/meet_profile/)
+                    './static/meet_profile/' + secure_filename(
+                        meet_profile))  # 모임 프로필 이미지 파일 저장 (경로: static/meet_profile/)
                 doc.update({'meet_profile': meet_profile})
                 session['meet_profile'] = './static/meet_profile/' + meet_profile
-
 
             # user테이블에서 모임장의 meeting에 새로 만든 모임 추가 (배열에 값을 추가할 때는 $push 사용)
             user_collect.update_one({'userid': session['userid']}, {'$push': {"meeting": meet_name}})
@@ -432,7 +484,7 @@ def write(id=None):
                 "meet_name": meet_name
             }
             collect.insert_one(doc)
-            return redirect('/meet/'+str(meetInfo[0]['_id']))
+            return redirect('/meet/' + str(meetInfo[0]['_id']))
         # GET일 경우
         return render_template('makenotice.html', meetInfo=meetInfo)
     else:  # 로그인 안되어 있을 경우
@@ -525,7 +577,7 @@ def register():
     data = request.get_json()
     db.meetings.insert_one(data)
 
-    return jsonify(result = "success", result2 = data)
+    return jsonify(result="success", result2=data)
 
 
 if __name__ == '__main__':
