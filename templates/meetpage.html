@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+        <!-- fullcalender -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='fullcalendar-5.11.0/lib/main.css') }}">
+<script src="{{url_for('static',filename='fullcalendar-5.11.0/lib/main.js')}}"></script>
+            <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+      <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
     <meta charset="UTF-8">
-    <title>모닥불</title>
+    <title>모닥불 : meetpage</title>
 </head>
 <style>
-    html, body{
+   html, body{
         margin: 0;
         border: 0;
         width : 100%;
@@ -31,7 +36,7 @@
         position: relative;
         justify-content: space-between;
         align-items: center;
-        background-color: white;
+        background-color: #F5A9A9;
         border-bottom: 1px solid lightgray;
     }
 
@@ -117,7 +122,7 @@
         overflow: hidden;
     }
 
-    .meetBoard #calender{
+    .meetBoard #calendar{
         width: 100%;
         height: 100%;
         filter: drop-shadow(0 2px 5px lightgray);
@@ -273,26 +278,27 @@
         padding: 15px;
         vertical-align:middle;
     }
-
-    a {
-        text-decoration-line: none;
-    }
-
-    a:visited {
-        color : black;
-    }
-
+}
 </style>
 <body>
-   <div class="main container">
+<div class="main container">
        <header class="container">
            <a class="logo" href="/"> 모닥불 </a>
            <nav class="navbar">
+               {% if not session['userid'] %}
+                    <button style=margin-right:20px;"><a href="/login">로그인</a></button>
+               {% else %}
+                    {% if session['profile'] %} <!-- 프로필이 있다면 -->
+                        <img id="profile" src="../{{session['profile']}}" width="30px"; height="30px"; style="margin-right:5px;border-radius: 50%;">
+                    {% endif %}
+                    {{session['username']}}님 반갑습니다.
+                    <button style="margin-left:20px;margin-right:20px;"><a href="/logout">로그아웃</a></button>
+               {% endif %}
            <div class="search"><form action="#" method="post">
                <input type="text" name="keyword" placeholder="검색">
                <input type="submit" value="src">
            </form></div>
-           <button class="mypage">mypage</button>
+           <button class="mypage"><a href="/mypage">mypage</a></button>
            </nav>
         </header>
        <div class="contents conatainer">
@@ -326,8 +332,7 @@
                </div>
                    <div id="board">
                    </div>
-                   <div id="calender">
-                        calendar
+                   <div id="calendar">
                    </div>
                    <div id="toggleBt">
                        toggle
@@ -337,10 +342,10 @@
                    </div>
                    <script>
                     $('.members').hide();
-                    $('#calender').hide();
+                    $('#calendar').hide();
                     $('#toggleBt').click(function(){
                         $('#board').toggle();
-                        $('#calender').toggle();
+                        $('#calendar').toggle();
                     });
 
                     $('#membersBt').click(function(){
@@ -377,6 +382,43 @@
             $('#chatBox').hide();
         });
        </script>
+    <script>
+    $(".meetNotice span").click(function(){
+        $(".detailsBg").eq(1).show();
+    })
+        $(".subProfile").click(function(){
+        $(".detailsBg").first().show();
+    })
+</script>
+<script>
+      document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'dayGridMonth'
+        });
+        calendar.render();
+      });
+</script>
+<script>
+  var x,y;
+  $(function(){
+    $("button").on("click",function(e){
+      $("<div class='draggable'></div>").prependTo("#board").draggable({containment:'#board'}).on("mouseup" ,function(e){
+      x = $(this).position().left;
+      y = $(this).position().top;
+      console.log(x,y);
+    });
+    });
+
+   function drag(){
+     $('.draggable').draggable({containment:'.board_cnt'}).on("mouseup" ,function(e){
+      x = $(this).position().left;
+      y = $(this).position().top;
+      console.log(x,y);
+    });
+  };
+  });
+  </script>
        <div class="footer conatainer">
            <!--팀원이나 간단한 정보들적기, 높이 낮아지면 사라짐-->
         </div>

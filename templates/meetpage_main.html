@@ -1,36 +1,35 @@
+<head>
+    <!-- fullcalender -->
+<link href='static/fullcalendar-5.11.0/lib/main.css' rel='stylesheet' />
+<script src="{{url_for('static',filename='fullcalendar-5.11.0/lib/main.js')}}"></script>
+        <script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+</head>
 <div class="meetTitleNav">
               <div class="meetwrap">
-              <div class="meetPic">a</div>
-               <h1 class="meetTitle">모임명</h1>
+              <div class="meetPic"><img src="../static/meet_profile/{{meetInfo[0].meet_profile}}"></div>
+               <h1 class="meetTitle">{{meetInfo[0].meet_name}}</h1>
                </div>
                <a class="meetOption" href="/meetadmin">모임관리</a>
+               <a class="meetOption" href="/write/{{meetInfo[0]._id}}">글쓰기</a>
            </div>
            <div class="meetContentsWrap">
                <div class="meetBoard">
                   <div class="members">
                    <div class="profileList">
-
-                       <div class="subProfile">
-                        <div class="profilePic">
-                            <img src="" alt="">
-                        </div>
-                        <div class="subName">김수한무거북</div>
-                        <div class="subLv">Lv.23</div>
-                   </div>
                    <div class="subProfile">
                         <div class="profilePic">
-                            <img src="" alt="">
+                            <img src="{{ session['profile'] }}" alt="">
                         </div>
-                        <div class="subName">내이름</div>
+                        <div class="subName">{{ session['username'] }}</div>
                         <div class="subLv">Lv.23</div>
                    </div>
                 </div>
 
                </div>
                    <div id="board">
+                      <button>new draggable</button>
                    </div>
-                   <div id="calender">
-                       calender
+                   <div id="calendar">
                    </div>
                    <div id="toggleBt">
                        toggle
@@ -56,72 +55,13 @@
                    <span>공지작성</span>
                    <div class="notice">
                        <ul>
-                       <li>
-                           공지1
-                       </li>
-                       <li>
-                           공지2
-                       </li>
-                       <li>
-                           공지3
-                       </li>
-                       <li>
-                           공지1
-                       </li>
-                       <li>
-                           공지2
-                       </li>
-                       <li>
-                           공지3
-                       </li><li>
-                           공지1
-                       </li>
-                       <li>
-                           공지2
-                       </li>
-                       <li>
-                           공지3
-                       </li><li>
-                           공지1
-                       </li>
-                       <li>
-                           공지2
-                       </li>
-                       <li>
-                           공지3
-                       </li><li>
-                           공지1
-                       </li>
-                       <li>
-                           공지2
-                       </li>
-                       <li>
-                           공지3
-                       </li><li>
-                           공지1
-                       </li>
-                       <li>
-                           공지2
-                       </li>
-                       <li>
-                           공지3
-                       </li><li>
-                           공지1
-                       </li>
-                       <li>
-                           공지2
-                       </li>
-                       <li>
-                           공지3
-                       </li><li>
-                           공지1
-                       </li>
-                       <li>
-                           공지2
-                       </li>
-                       <li>
-                           공지3
-                       </li>
+                       {% for i in data %}
+                           {% if i.meet_name == meetInfo[0].meet_name %}
+                                <li>
+                                    <a href="/notice/{{meetInfo[0]._id}}/{{i._id}}">{{i.title}}</a>
+                                </li>
+                           {% endif %}
+                           {% endfor %}
                    </ul>
                    </div>
 
@@ -135,3 +75,34 @@
         $(".detailsBg").first().show();
     })
 </script>
+<script>
+
+      document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+          initialView: 'dayGridMonth'
+        });
+        calendar.render();
+      });
+
+</script>
+<script>
+  var x,y;
+  $(function(){
+    $("button").on("click",function(e){
+      $("<div class='draggable'>drag me</div>").prependTo("#board").draggable({containment:'#board'}).on("mouseup" ,function(e){
+      x = $(this).position().left;
+      y = $(this).position().top;
+      console.log(x,y);
+    });
+    });
+
+   function drag(){
+     $('.draggable').draggable({containment:'.board_cnt'}).on("mouseup" ,function(e){
+      x = $(this).position().left;
+      y = $(this).position().top;
+      console.log(x,y);
+    });
+  };
+  });
+  </script>
