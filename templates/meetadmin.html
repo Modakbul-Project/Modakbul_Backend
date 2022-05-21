@@ -2,73 +2,85 @@
 <html lang="en">
 <head>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <link rel = "stylesheet" href="static/css/meetadmin.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/meetadmin.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
 </head>
 <body>
+    <!--서버에서 flash로 넘어온 메시지가 있다면 alert로 출력 -->
+    {%with messages = get_flashed_messages()%}
+      {%if messages %}
+            <script type="text/javascript">
+              alert("{{messages[-1]}}");
+            </script>
+        {%endif%}
+    {%endwith%}
    <div class="main container">
-       <header class="container">
+    <header class="container">
            <a class="logo" href="/"> 모닥불 </a>
            <nav class="navbar">
+               {% if not session['userid'] %}
+                    <button style=margin-right:20px;"><a href="/login">로그인</a></button>
+               {% else %}
+                    {% if session['profile'] %} <!-- 프로필이 있다면 -->
+                        <img id="profile" src="../{{session['profile']}}" width="30px"; height="30px"; style="margin-right:5px;border-radius: 50%;">
+                    {% endif %}
+                    {{session['username']}}님 반갑습니다.
+                    <button style="margin-left:20px;margin-right:20px;"><a href="/logout">로그아웃</a></button>
+               {% endif %}
            <div class="search"><form action="#" method="post">
                <input type="text" name="keyword" placeholder="검색">
                <input type="submit" value="src">
            </form></div>
-           <button class="mypage">mypage</button>
+           <button class="mypage"><a href="/mypage">mypage</a></button>
            </nav>
         </header>
        <div class="contents conatainer"> 
            <div class="meetTitleNav">
               <div class="meetwrap">
-              <div class="meetPic">a</div>
-               <h1 class="meetTitle">모임명</h1>
+              <div class="meetPic">
+                  <img src="../static/meet_profile/{{meetInfo[0].meet_profile}}">
+              </div>
+               <h1 class="meetTitle">{{meetInfo[0].meet_name}}</h1>
                </div>
-               <a class="meetOption" href="/meet">모임홈</a>
+               <a class="meetOption" href="/meet/{{meetInfo[0]._id}}">모임홈</a>
            </div>
            <div class="meetContentsWrap">
                <div class="meetBoard">
                   <div class="sub">
                   <h2>참여 신청</h2>
                    <div class="profileList">
-                       
+                        {% for i in waiting %}
                        <div class="subProfile">
                         <div class="profilePic">
-                            <img src="" alt="">
+                            <img src="../{{i.user_profile}}" alt="">
                         </div>
-                        <div class="subName">내이름</div>
-                        <div class="subLv">Lv.23</div>
-                        <button>X</button><button>V</button>
+                        <div class="subName">{{i.user_name}}</div>
+                        <form method="post">
+                            <input type="hidden" name="userid" value="{{i.user_id}}">
+                            <input type="hidden" name="meet_name" value="{{meetInfo[0].meet_name}}">
+                            <input type="submit" value="V" onclick="javascript: form.action='/accept';"/>
+                            <input type="submit" value="X" onclick="javascript: form.action='/reject';"/>
+                        </form>
                    </div>
-                   <div class="subProfile">
-                        <div class="profilePic">
-                            <img src="" alt="">
-                        </div>
-                        <div class="subName">내이름</div>
-                        <div class="subLv">Lv.23</div>
-                        <button>X</button><button>V</button>
-                   </div>
-                   
+                       {% endfor %}
                    </div>
                 </div>
                 <div class="members">
                   <h2>멤버 목록</h2>
                    <div class="profileList">
-                       
+                      {% for i in members %}
                        <div class="subProfile">
                         <div class="profilePic">
-                            <img src="" alt="">
+                            <img src="../static/profile/{{i.profile}}" alt="">
                         </div>
-                        <div class="subName">내이름</div>
-                        <div class="subLv">Lv.23</div>
-                        <button>탈퇴</button>
-                   </div>
-                   <div class="subProfile">
-                        <div class="profilePic">
-                            <img src="" alt="">
-                        </div>
-                        <div class="subName">내이름</div>
-                        <div class="subLv">Lv.23</div>
-                        <button>탈퇴</button>
-                   </div> 
+                        <div class="subName">{{i.username}}</div>
+                        <form method="post" action="/quit">
+                            <input type="hidden" name="userid" value="{{i.userid}}">
+                            <input type="hidden" name="meet_name" value="{{meetInfo[0].meet_name}}">
+                            <button type="submit">탈퇴</button>
+                        </form>
+                    </div>
+                    {% endfor %}
                 </div>   
                </div>
                <div id="toggleBt">
@@ -82,16 +94,6 @@
                     });
                    </script>
                </div>
-               <div class="meetNotice">
-                   <h2>공지사항</h2>
-                   <div class="notice">
-                       <ul>
-                       <li>
-                           <span>공지1</span> <div class="noticeAdmin"><a href="/makenotice">수정</a> <a href="#">삭제</a></div>
-                       </li>
-                   </ul>
-                   </div>
-                   
                </div>
            </div>
        </div>

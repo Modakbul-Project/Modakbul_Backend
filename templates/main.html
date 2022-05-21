@@ -25,6 +25,14 @@
 <p style="display: none" id="user_name1">{{ session['username'] }}</p>
 <p style="display: none" id="user_id1">{{ session['userid'] }}</p>
 <p style="display: none" id="meet_name"></p>
+    <!--서버에서 flash로 넘어온 메시지가 있다면 alert로 출력 -->
+    {%with messages = get_flashed_messages()%}
+      {%if messages %}
+            <script type="text/javascript">
+              alert("{{messages[-1]}}");
+            </script>
+        {%endif%}
+    {%endwith%}
            <div class="category"> <form action="#" method="post">
                <!-- 디자인 하려면 button->li로 넣어야 할듯 -->
                 <select name="location" id="loc">
@@ -68,10 +76,11 @@
         </div>
                <script>
                     function mClick(meet) {
+                        var car = "hello"
                         meet = meet.value
                         {% for i in meetInfo %}
                             if(meet == "{{i.meet_name}}") {
-                                  $( '#card_title' ).text( "{{i.meet_name}}");
+                                  $( '#card_title' ).text( "{{i.meet_name}}" );
                                   document.getElementById('meetPic').src =  "../static/meet_profile/{{i.meet_profile}}";
                                   $( '#card_location' ).text( "{{i.location}}" );
                                   $( '#card_category' ).text( "{{i.category}}" );
@@ -80,6 +89,7 @@
                                   $( '#currentcount2' ).text( "{{i.currentcount}}" );
                                   $( '#headcount2' ).text( "{{i.headcount}}" );
                                   $( '.detailContents' ).text( "{{i.meetDetail}}" );
+                                  $( '.meet_name' ).val( "{{i.meet_name}}" );
                                   $(".detailsBg").show();
                             }
                         {% endfor %}
@@ -111,7 +121,10 @@
                     '                <img src="../static/meet_profile/{{i.meet_profile}}" width="73" height="70">' +
                     '           </div>' +
                     '            <div class="desc">' +
-                    '                <div><a href="#" target="_blank" class="link">신청</a></div>' +
+                    '                <div class="link" style="display: inline-block;"> '+
+                    '                    <form method="post" action="/join"> ' +
+                    '                        <input type="hidden" class="meet_name" id="meet_name" name="meet_name" value="{{i.meet_name}}"> ' +
+                    '                        <button type="submit">참여하기</button></form></div>' +
                     '                <div class="ellipsis">{{i.category}}</div>' +
                     '                <div class="jibun ellipsis">{{i.headcount}}명 모집합니다.</div>' +
                     '                <div class="jibun ellipsis">{{i.meetDetail}}</div>' +

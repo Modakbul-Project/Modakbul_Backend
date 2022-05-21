@@ -29,22 +29,20 @@
                     <li id="card_category">자유 주제</li>
                     <li><span id="currentcount">2</span>~<span id="headcount">5</span>명</li>
                 </ul>
-                <ul id="smallTag">
-                    <li>느긋한</li>
-                    <li>주제자유</li>
-                </ul>
             </div>
             <div class="detailContents">
             </div>
             <div class="detailFooter">
                 <div id="numPeople">현재 인원 수 <span id="currentcount2">2</span> <span>/</span> <span id="headcount2">5</span></div>
-                <button onclick="location.href='#'">참여하기</button>
+                <form method="post" action="/join">
+                    <input type="hidden" class="meet_name" id="meet_name" name="meet_name" value="">
+                    <button type="submit">참여하기</button>
+                </form>
             </div>
         </div>
     </div>
     <script>
             $(".detailsBg").hide();
-
         $(".detailTitle button").click(function(){
             $(".detailsBg").hide();
         })
