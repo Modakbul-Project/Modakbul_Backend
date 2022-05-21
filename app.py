@@ -33,54 +33,46 @@ conn = MongoClient('127.0.0.1')
 db = conn.Test
 
 
-@app.route('/test2')
-def test2():
+@app.route('/test3')
+def test3():
+    return render_template('test3.html')
+
+
+@app.route('/join', methods=['GET', 'POST'])
+def join():
     if 'userid' in session:  # 로그인 여부 확인
-        # collection 생성
-        collect = db.mongoBoard
-        meeting_collect = db.mongoMeeting
+        if request.method == "POST":
+            # collection 생성
+            collect = db.mongoWaiting
+            meeting_collect = db.mongoMeeting
 
-        # 모임 정보
-        meetInfo = meeting_collect.find({'_id': ObjectId("626e170d0bb8876b1d54d22c")})
+            meet_name = request.form["meet_name"]
+            result = list(meeting_collect.find({'meet_name': meet_name}))
+            leader_name = result[0]['leader_name']
+            leader_id = result[0]['leader_id']
+            user_name = session['username']
+            user_id = session['userid']
+            user_profile = session['profile']
 
-        # select 쿼리값 results에 저장
-        results = collect.find()
-        return render_template('test2.html', admin=0, data=results, meetInfo=meetInfo)
-    else:
-        return redirect('/login')
+            # document 생성
+            doc = {
+                "meet_name": meet_name,
+                "leader_name": leader_name,
+                "leader_id": leader_id,
+                "user_name": user_name,
+                "user_id": user_id,
+                "user_profile": user_profile,
+                "accept": None
+            }
 
+            # document 삽입
+            collect.insert_one(doc)
 
-@app.route('/test3/<id>')
-def test3(id=None):
-    if 'userid' in session:  # 로그인 여부 확인
-        # collection 생성
-        collect = db.mongoBoard
-        meeting_collect = db.mongoMeeting
-
-        # 모임 정보
-        meetInfo = meeting_collect.find({'_id': ObjectId(id)})
-
-        # select 쿼리값 results에 저장
-        results = collect.find()
-
-        return render_template('test3.html', data=results, meetInfo=meetInfo)
-    else:
-        return redirect('/login')
-
-
-@app.route('/test/<id>')
-def test(id=None):
-    if 'userid' in session:  # 로그인 여부 확인
-        # collection 생성
-        collect = db.mongoBoard
-        meeting_collect = db.mongoMeeting
-
-        # 모임 정보
-        meetInfo = meeting_collect.find({'_id': ObjectId(id)})
-
-        # select 쿼리값 results에 저장
-        results = collect.find()
-        return render_template('test.html', admin=0, data=results, meetInfo=meetInfo)
+            msg = "신청이 완료 되었습니다."
+            flash(msg)  # 리턴할 때 같이 넘겨줄 메시지
+            return redirect('/')
+        else:
+            return redirect(url_for('main'))
     else:
         return redirect('/login')
 
@@ -334,7 +326,7 @@ def google():
     )
     # Redirect to google_auth function
     redirect_uri = url_for('google_auth', _external=True)
-    print(redirect_uri)
+    #print(redirect_uri)
     return oauth.google.authorize_redirect(redirect_uri)
 
 
@@ -448,10 +440,111 @@ def meet_page(id=None):
         return redirect('/login')
 
 
-@app.route('/meetadmin')
-def meet_admin():
+@app.route('/meetadmin/<id>', methods=['GET', 'POST'])
+def meet_admin(id=None):
     if 'userid' in session:  # 로그인 여부 확인
-        return render_template('meetpage.html')
+        # collection 생성
+        collect = db.mongoUser
+        meeting_collect = db.mongoMeeting
+        waiting_collect = db.mongoWaiting
+
+        # 모임 정보
+        meetInfo = meeting_collect.find({'_id': ObjectId(id)})
+
+        if request.method == "POST":
+            return redirect('/meet/' + str(meetInfo[0]['_id']))
+
+        else:
+            meet_list = list(meeting_collect.find({'_id': ObjectId(id)}))
+            meet_name = meet_list[0]['meet_name']
+            members = list(collect.find({'meeting': meet_name}))
+            waiting = list(waiting_collect.find({'meeting': meet_name}))
+            return render_template('meetadmin.html', meetInfo=meetInfo, members=members, waiting=waiting)
+    else:
+        return redirect('/login')
+
+@app.route('/accept', methods=['GET', 'POST'])
+def accept_meet():
+    if 'userid' in session:  # 로그인 여부 확인
+        if request.method == "POST":
+            # collection 생성
+            collect = db.mongoUser
+            meeting_collect = db.mongoMeeting
+            waiting_collect = db.mongoWaiting
+
+            userid = request.form["userid"]
+            meet_name = request.form["meet_name"]
+            meet = list(meeting_collect.find({'meet_name': meet_name}))
+            if session['userid'] == meet[0]['leader_id']:
+                currentcount = meet[0]['currentcount']
+                currentcount += 1
+                meeting_collect.update_one({'meet_name': meet_name}, {'$set': {"currentcount": currentcount}})
+
+                collect.update_one({'userid': userid}, {'$push': {"meeting": meet_name}})
+                waiting_collect.delete_one({'userid': userid, 'meet_name': meet_name})
+                return redirect('/meetadmin/'+ str(meet[0]['_id']))
+            else:
+                # 로그인한 사용자와 일치하지 않으면
+                msg = "권한이 없습니다."
+                flash(msg)  # 리턴할 때 같이 넘겨줄 메시지
+                return redirect('/meetadmin/' + str(meet[0]['_id']))
+        else:
+            return redirect(url_for('main'))
+    else:
+        return redirect('/login')
+
+
+    @app.route('/reject', methods=['GET', 'POST'])
+    def reject_meet():
+        if 'userid' in session:  # 로그인 여부 확인
+            if request.method == "POST":
+                # collection 생성
+                waiting_collect = db.mongoWaiting
+                meeting_collect = db.mongoMeeting
+
+                userid = request.form["userid"]
+                meet_name = request.form["meet_name"]
+                meet = list(meeting_collect.find({'meet_name': meet_name}))
+                if session['userid'] == meet[0]['leader_id']:
+                    waiting_collect.delete_one({'userid': userid, 'meet_name': meet_name})
+                    return redirect('/meetadmin/' + str(meet[0]['_id']))
+                else:
+                    # 로그인한 사용자와 일치하지 않으면
+                    msg = "권한이 없습니다."
+                    flash(msg)  # 리턴할 때 같이 넘겨줄 메시지
+                    return redirect('/meetadmin/' + str(meet[0]['_id']))
+            else:
+                return redirect(url_for('main'))
+        else:
+            return redirect('/login')
+
+
+
+@app.route('/quit', methods=['GET', 'POST'])
+def quit_meet():
+    if 'userid' in session:  # 로그인 여부 확인
+        if request.method == "POST":
+            # collection 생성
+            collect = db.mongoUser
+            meeting_collect = db.mongoMeeting
+
+            userid = request.form["userid"]
+            meet_name = request.form["meet_name"]
+            meet = list(meeting_collect.find({'meet_name': meet_name}))
+            if userid == session['userid']:
+                collect.update_one({'userid': userid}, {'$pull': {"meeting": meet_name}})
+
+                currentcount = meet[0]['currentcount']
+                currentcount -= 1
+                meeting_collect.update_one({'meet_name': meet_name}, {'$set': {"currentcount":currentcount}})
+                return redirect('/')
+            else:
+                # 로그인한 사용자와 일치하지 않으면
+                msg = "탈퇴 권한이 없습니다."
+                flash(msg)  # 리턴할 때 같이 넘겨줄 메시지
+                return redirect('/meetadmin/' + str(meet[0]['_id']))
+        else:
+            return redirect(url_for('main'))
     else:
         return redirect('/login')
 
