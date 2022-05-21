@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %} : 로그인{% endblock %}
+{% block head %}
+    {{ super() }}
+    <link rel = "stylesheet" href="static/css/login.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="../static/parsley.js" type="text/javascript"></script>  <!--유효성 검증 js-->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" type="text/javascript"></script>
+{% endblock %}
+{% block body %}
+    <!--서버에서 flash로 넘어온 메시지가 있다면 alert로 출력 -->
+    {%with messages = get_flashed_messages()%}
+      {%if messages %}
+            <script type="text/javascript">
+              alert("{{messages[-1]}}");
+            </script>
+        {%endif%}
+    {%endwith%}
+       <div class="contents conatainer">
+           <div class="loginBox">
+               <a class="logo" href="/kakao"> 모닥불 </a>
+               <div class="fromWrap">
+                   <form action="#" method="post" data-parsley-validate>
+                   <input type="text" name="id" placeholder="아이디" data-parsley-errors-container="div[id='idError']" data-parsley-error-message="아이디를 입력하세요!" required>
+                    <div class="row">  <!--에러 메시지 출력-->
+                        <div class="col-md-6">
+                         <div id="idError"  style="color:#f00;">
+                         </div>
+                        </div>
+                    </div>
+                   <input type="password" name="password" placeholder="비밀번호" data-parsley-validation-threshold="1" data-parsley-errors-container="div[id='passwordError']" data-parsley-error-message="비밀번호를 입력하세요!" required>
+                   <div class="row">  <!--에러 메시지 출력-->
+                        <div class="col-md-6">
+                         <div id="passwordError"  style="color:#f00;">
+                         </div>
+                        </div>
+                   </div>
+                   <input type="submit" value="로그인">
+               </form>
+               <button class="oauth" onclick="location.href='/google'">Google 아이디로 로그인</button>
+               </div>
+               <div class="loginOptions">
+                   <ul>
+                       <li>
+                           <a href="/find_id">아이디 찾기</a>
+                       </li>
+                       <li>
+                           <a href="/find_pw">비밀번호 찾기</a>
+                       </li>
+                       <li>
+                            <a href="/signup">회원가입</a>
+                       </li>
+                   </ul>
+               </div>
+           </div>
+       </div>
+{% endblock %}
+{% block footer %}
+{% endblock %}

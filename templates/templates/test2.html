@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <meta charset="UTF-8">
+    <link rel = "stylesheet" href="static/css/popupBase.css">
+    <style>
+        #meetPic{
+            width:50px;
+            height:50px;
+            background-color: gainsboro;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <p id="lat"></p>
+    <p id="lng"></p>
+    <div class="detailsBg">
+        <div class="detailsWrap">
+            <div class="detailTitle">
+               <button>X</button>
+                <div class="meetPic"><img id="meetPic" src="" alt=""></div>
+                <h2 id="card_title">봄맞이 야외스터디 모집</h2>
+            </div>
+            <div class="detailTags">
+                <ul id="bigTag">
+                    <li id="card_location">서울시 강남구</li>
+                    <li id="card_category">자유 주제</li>
+                    <li><span id="currentcount">2</span>~<span id="headcount">5</span>명</li>
+                </ul>
+            </div>
+            <div class="detailContents">
+            </div>
+            <div class="detailFooter">
+                <div id="numPeople">현재 인원 수 <span id="currentcount2">2</span> <span>/</span> <span id="headcount2">5</span></div>
+                <form method="post" action="/join">
+                    <input type="hidden" class="meet_name" id="meet_name" name="meet_name" value="">
+                    <button type="submit">참여하기</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+            $(".detailsBg").hide();
+        $(".detailTitle button").click(function(){
+            $(".detailsBg").hide();
+        })
+    </script>
+</body>
+</html>
