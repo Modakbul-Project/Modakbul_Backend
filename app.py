@@ -33,11 +33,6 @@ conn = MongoClient('127.0.0.1')
 db = conn.Test
 
 
-@app.route('/test3')
-def test3():
-    return render_template('test3.html')
-
-
 @app.route('/join', methods=['GET', 'POST'])
 def join():
     if 'userid' in session:  # 로그인 여부 확인
@@ -243,8 +238,8 @@ def make_page():
                 "meet_title": meet_title,
                 "location": location,
                 "category": category,
-                "headcount": headcount,
-                "currentcount": currentcount,
+                "headcount": int(headcount),
+                "currentcount": int(currentcount),
                 "address": address,
                 "meetDetail": meetDetail,
                 "tags": tag_arr,
@@ -404,7 +399,7 @@ def signup():
             "email": email,
             "phone": phone,
             "introduce": "",
-            "meeting": "",
+            "meeting": [],
         }
         # userid가 db에 있는지 검색
         result = list(collect.find({'userid': userid}))
@@ -458,7 +453,7 @@ def meet_admin(id=None):
             meet_list = list(meeting_collect.find({'_id': ObjectId(id)}))
             meet_name = meet_list[0]['meet_name']
             members = list(collect.find({'meeting': meet_name}))
-            waiting = list(waiting_collect.find({'meeting': meet_name}))
+            waiting = list(waiting_collect.find({'meet_name': meet_name}))
             return render_template('meetadmin.html', meetInfo=meetInfo, members=members, waiting=waiting)
     else:
         return redirect('/login')
@@ -481,7 +476,7 @@ def accept_meet():
                 meeting_collect.update_one({'meet_name': meet_name}, {'$set': {"currentcount": currentcount}})
 
                 collect.update_one({'userid': userid}, {'$push': {"meeting": meet_name}})
-                waiting_collect.delete_one({'userid': userid, 'meet_name': meet_name})
+                waiting_collect.delete_one({'user_id': userid, 'meet_name': meet_name})
                 return redirect('/meetadmin/'+ str(meet[0]['_id']))
             else:
                 # 로그인한 사용자와 일치하지 않으면
@@ -494,30 +489,29 @@ def accept_meet():
         return redirect('/login')
 
 
-    @app.route('/reject', methods=['GET', 'POST'])
-    def reject_meet():
-        if 'userid' in session:  # 로그인 여부 확인
-            if request.method == "POST":
-                # collection 생성
-                waiting_collect = db.mongoWaiting
-                meeting_collect = db.mongoMeeting
+@app.route('/reject', methods=['GET', 'POST'])
+def reject_meet():
+    if 'userid' in session:  # 로그인 여부 확인
+        if request.method == "POST":
+            # collection 생성
+            waiting_collect = db.mongoWaiting
+            meeting_collect = db.mongoMeeting
 
-                userid = request.form["userid"]
-                meet_name = request.form["meet_name"]
-                meet = list(meeting_collect.find({'meet_name': meet_name}))
-                if session['userid'] == meet[0]['leader_id']:
-                    waiting_collect.delete_one({'userid': userid, 'meet_name': meet_name})
-                    return redirect('/meetadmin/' + str(meet[0]['_id']))
-                else:
-                    # 로그인한 사용자와 일치하지 않으면
-                    msg = "권한이 없습니다."
-                    flash(msg)  # 리턴할 때 같이 넘겨줄 메시지
-                    return redirect('/meetadmin/' + str(meet[0]['_id']))
+            userid = request.form["userid"]
+            meet_name = request.form["meet_name"]
+            meet = list(meeting_collect.find({'meet_name': meet_name}))
+            if session['userid'] == meet[0]['leader_id']:
+                waiting_collect.delete_one({'user_id': userid, 'meet_name': meet_name})
+                return redirect('/meetadmin/' + str(meet[0]['_id']))
             else:
-                return redirect(url_for('main'))
+                # 로그인한 사용자와 일치하지 않으면
+                msg = "권한이 없습니다."
+                flash(msg)  # 리턴할 때 같이 넘겨줄 메시지
+                return redirect('/meetadmin/' + str(meet[0]['_id']))
         else:
-            return redirect('/login')
-
+            return redirect(url_for('main'))
+    else:
+        return redirect('/login')
 
 
 @app.route('/quit', methods=['GET', 'POST'])
