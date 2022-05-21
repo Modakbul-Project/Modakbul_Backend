@@ -1,3 +1,103 @@
+    html, body{
+        margin: 0;
+        border: 0;
+        width : 100%;
+        height: 100%;
+    }
+
+    .main{
+        margin: 0;
+        border: 0;
+        width : 100%;
+        height: 100%;
+        display:flex;
+        flex-direction: column;
+        position: absolute;
+    }
+
+    header{
+        top:0px;
+        padding: 1rem 2rem;
+        z-index:10;
+        display:flex;
+        position: relative;
+        justify-content: space-between;
+        align-items: center;
+        background-color: white;
+        border-bottom: 1px solid lightgray;
+    }
+
+    .navbar{
+        display: flex;
+        position: relative;
+    }
+
+    .search input{
+        height:30px;
+        margin-right:1rem;
+    }
+
+    .contents{
+        flex: auto;
+        background-color:aliceblue;
+        display:flex;
+        align-items: center;
+        text-align: center;
+    }
+
+    .contents{
+        padding:50px;
+        flex-direction: column;
+    }
+
+    .meetTitleNav{
+        margin-bottom: 30px;
+        width:80%;
+        justify-content: space-between;
+        align-items: center;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .meetwrap{
+        display: flex;
+        align-items: center;
+    }
+    .meetPic{
+        display: inline-block;
+        width:50px;
+        height: 50px;
+        background-color:gray;
+        margin-right: 10px;
+        border-radius: 50%;
+        overflow: hidden;
+    }
+
+    .meetTitleNav h1{
+        display: inline-block;
+        margin: 0;
+    }
+
+    .meetContentsWrap{
+        width:80%;
+        flex:1 1 0px;
+        display:flex;
+        align-content: center;
+        justify-content: center;
+        text-align: center;
+        overflow: hidden;
+    }
+
+    .meetBoard{
+        flex:3 1 0;
+        position: relative;
+        overflow: hidden;
+        background-color: white;
+        border: 1px solid lightgray;
+        padding-left: 0.5rem;
+    }
+
     .sub, .members{
         width:100%;
     }
@@ -12,7 +112,7 @@
     }
 
     .profileList .subProfile{
-        padding-left: 2rem;
+        padding-right: 8rem;
         text-align: center;
     }
 
@@ -63,14 +163,111 @@
         margin: 10px;
     }
 
-    .noticeAdmin{
-        display: inline-block;
-        
+    .meetNotice{
+        flex:1;
+        margin-left:10px;
+        background-color: white;
+        border: 1px solid lightgray;
+        text-align: justify;
+        display: flex;
+        flex-direction: column;
+        position: relative;
     }
 
-    .noticeAdmin span{
-        cursor: pointer;
-        font-size: 9pt;
-        color:gray;
-        text-decoration-line: underline;
+    .meetNotice h2{
+        margin: 0;
+        padding-left: 25px;
+        padding-top: 20px;
+    }
+
+    .meetNotice h2:after{
+        flex-shrink: 0;
+        display: block;
+        content: '';
+        margin-top:15px;
+        width:85%;
+        height:1px;
+        background-color: gainsboro;
+    }
+
+    .meetNotice .notice{
+        height: 100%;
+        flex:1;
+        overflow: scroll;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        line-height: 2;
+    }
+
+    .meetNotice li{
+        text-align: justify;
+        list-style:none;
+        padding-left: 0;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .meetNotice li div{
+
+    }
+
+        @media(max-width:1000px){
+        .meetContentsWrap{
+            flex-direction: column;
+        }
+        .meetNotice{
+            margin: 0;
+        }
+        .meetNotice ul{
+            height:100px;
+
+        }
+        .meetNotice h2{
+            font-size: 1rem;
+        }
+
+       @media(max-height:800px){
+        .meetNotice{
+            display:none;
+        }
+      }
+    }
+
+    #chatBt{
+        display: flex;
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        margin:50px;
+        width:70px;
+        height:70px;
+        background-color: cadetblue;
+        border-radius: 50%;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #chatBox{
+        display: flex;
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        margin:50px;
+        width:400px;
+        height:600px;
+        background-color: cadetblue;
+        border-radius: 10px;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #chatCloseBt{
+        display: inline-block;
+        position: absolute;
+        right: 0;
+        top:0;
+        padding: 15px;
+        vertical-align:middle;
     }
