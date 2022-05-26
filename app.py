@@ -33,6 +33,11 @@ conn = MongoClient('127.0.0.1')
 db = conn.Test
 
 
+@app.route('/test')
+def test():
+    return render_template('test.html')
+
+
 @app.route('/join', methods=['GET', 'POST'])
 def join():
     if 'userid' in session:  # 로그인 여부 확인
@@ -45,6 +50,8 @@ def join():
             result = list(meeting_collect.find({'meet_name': meet_name}))
             leader_name = result[0]['leader_name']
             leader_id = result[0]['leader_id']
+            category = result[0]['category']
+            location = result[0]['location']
             user_name = session['username']
             user_id = session['userid']
             user_profile = session['profile']
@@ -54,6 +61,8 @@ def join():
                 "meet_name": meet_name,
                 "leader_name": leader_name,
                 "leader_id": leader_id,
+                "category": category,
+                "location": location,
                 "user_name": user_name,
                 "user_id": user_id,
                 "user_profile": user_profile,
@@ -201,6 +210,16 @@ def my_page():
         return render_template('mypage.html', meetInfo=meetInfo, mypage=0)
     else:
         return redirect('/login')
+
+
+@app.route('/waiting')
+def waiting():
+    # collection 생성
+    waiting_collect = db.mongoWaiting
+
+    waitings = waiting_collect.find({'user_id': session['userid']})
+
+    return render_template('waiting.html', waitings=waitings)
 
 
 @app.route('/makepage', methods=['GET', 'POST'])
@@ -477,7 +496,7 @@ def accept_meet():
 
                 collect.update_one({'userid': userid}, {'$push': {"meeting": meet_name}})
                 waiting_collect.delete_one({'user_id': userid, 'meet_name': meet_name})
-                return redirect('/meetadmin/'+ str(meet[0]['_id']))
+                return redirect('/meetadmin/' + str(meet[0]['_id']))
             else:
                 # 로그인한 사용자와 일치하지 않으면
                 msg = "권한이 없습니다."
@@ -531,6 +550,9 @@ def quit_meet():
                 currentcount = meet[0]['currentcount']
                 currentcount -= 1
                 meeting_collect.update_one({'meet_name': meet_name}, {'$set': {"currentcount":currentcount}})
+
+                if currentcount == 0:
+                    meeting_collect.delete_one({'meet_name': meet_name})  # 모임 인원이 0이 되면 모임 삭제
                 return redirect('/')
             else:
                 # 로그인한 사용자와 일치하지 않으면
