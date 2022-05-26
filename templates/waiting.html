@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %} : 대기중인 모임{% endblock %}
+{% block head %}
+<link rel = "stylesheet" href="static/bootstrap.min.css">
+    {{ super() }}
+{% endblock %}
+{% block body %}
+<table class="table">
+ <thead>
+   <tr>
+       <th>모 임 명</th>
+       <th>카 테 고 리</th>
+       <th>지 역</th>
+       <th>모 임 장</th>
+       <th>승 인 여 부</th>
+   </tr>
+ </thead>
+ <tbody>
+    {% for i in waitings %}
+   <tr>
+      <td>{{ i.meet_name }}</td>
+       <td>{{ i.category }}</td>
+       <td>{{ i.location }}</td>
+      <td>{{ i.leader_name }}</td>
+      <td>X</td>
+   </tr>
+  {% endfor %}
+ </tbody>
+
+</table>
+{% endblock %}
+{%block footer%}
+<!--팀원이나 간단한 정보들적기, 높이 낮아지면 사라짐-->
+{%endblock%}

@@ -11,7 +11,7 @@
 <body>
    <div class="main container">
        <header class="container">
-           <a class="logo" href="/"> 모닥불 </a>
+           <a class="logo" href="/"><img src="{{ url_for('static', filename='logo.png') }}" alt=""></a>
            <nav class="navbar">
                {% if not session['userid'] %}
                     <button style=margin-right:20px;"><a href="/login">로그인</a></button>
@@ -22,10 +22,6 @@
                     {{session['username']}}님 반갑습니다.
                     <button style="margin-left:20px;margin-right:20px;"><a href="/logout">로그아웃</a></button>
                {% endif %}
-           <div class="search"><form action="#" method="post">
-               <input type="text" name="keyword" placeholder="검색">
-               <input type="submit" value="src">
-           </form></div>
            <button class="mypage"><a href="/mypage">mypage</a></button>
            </nav>
         </header>
